@@ -2,29 +2,10 @@
     "all": {
         "include": {
             "all": [
-                "cockpit-networkmanager",
-                "cockpit-podman",
-                "cockpit-selinux",
-                "cockpit-storaged",
-                "cockpit-system",
-                "dbus-tools",
-                "distrobox",
-                "duperemove",
                 "firewalld",
-                "iwlegacy-firmware",
-                "iwlwifi-dvm-firmware",
-                "iwlwifi-mvm-firmware",
                 "open-vm-tools",
-                "podman",
-                "podman-compose",
                 "qemu-guest-agent",
-                "snapraid",
-                "tailscale",
-                "tmux",
-                "wget",
-                "wireguard-tools",
-                "xdg-dbus-proxy",
-                "xdg-user-dirs"
+                "wget"
             ]
         },
         "exclude": {
