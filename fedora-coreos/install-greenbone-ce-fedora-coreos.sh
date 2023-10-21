@@ -30,8 +30,6 @@ export SOURCE_DIR=/tmp/greenbone/source && mkdir -p $SOURCE_DIR
 export INSTALL_DIR=/tmp/greenbone/install && mkdir -p $INSTALL_DIR
 export BUILD_DIR=/tmp/greenbone/build && mkdir -p $BUILD_DIR
 
-clear
-
 # GVM user setup and trigger prompt for sudo
 sudo useradd -r -M -U -G wheel -s /usr/sbin/nologin gvm
 sudo usermod -aG gvm $USER
