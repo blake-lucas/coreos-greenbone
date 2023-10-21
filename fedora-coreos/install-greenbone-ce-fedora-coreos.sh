@@ -32,13 +32,6 @@ export BUILD_DIR=/tmp/greenbone/build && mkdir -p $BUILD_DIR
 
 clear
 
-# Prepare text output colours
-CYAN='\033[0;36m'
-GREY='\033[0;37m'
-GREYB='\033[1;37m'
-LYELLOW='\033[0;93m'
-NC='\033[0m' #No Colour
-
 # GVM user setup and trigger prompt for sudo
 sudo useradd -r -M -U -G wheel -s /usr/sbin/nologin gvm
 sudo usermod -aG gvm $USER
@@ -82,9 +75,9 @@ DEFAULT_FQDN=$SERVER_NAME.$LOCAL_DOMAIN
 PIP_OPTIONS="--prefix=$INSTALL_PREFIX --no-warn-script-location ."
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Installing dependencies"
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 rpm-ostree install \
   cmake \
@@ -249,9 +242,9 @@ make DESTDIR=$INSTALL_DIR/gvm-libs install
 sudo cp -rv $INSTALL_DIR/gvm-libs/* /
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Building & installing gvmd"
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 
 # Download the gvmd sources
 export GVMD_VERSION=$GVMD_VERSION
@@ -312,9 +305,9 @@ sudo systemctl daemon-reload
 sudo systemctl enable gvmd
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Building & installing pg-gvm"
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 
 # Download the pg-gvm sources
@@ -336,9 +329,9 @@ make DESTDIR=$INSTALL_DIR/pg-gvm install
 sudo cp -rv $INSTALL_DIR/pg-gvm/* /
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Building & installing gsa"
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 export GSA_VERSION=$GSA_VERSION
 curl -f -L https://github.com/greenbone/gsa/releases/download/v$GSA_VERSION/gsa-dist-$GSA_VERSION.tar.gz -o $SOURCE_DIR/gsa-$GSA_VERSION.tar.gz
@@ -352,9 +345,9 @@ sudo mkdir -p $INSTALL_PREFIX/share/gvm/gsad/web/
 sudo cp -rv $SOURCE_DIR/gsa-$GSA_VERSION/* $INSTALL_PREFIX/share/gvm/gsad/web/
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Building & installing gsad"
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 sudo firewall-cmd --add-port=9392/tcp
 sudo firewall-cmd --runtime-to-permanent
@@ -411,9 +404,9 @@ sudo systemctl daemon-reload
 sudo systemctl enable gsad
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Building & installing openvas-smb"
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 
 sudo cp /usr/lib64/heimdal/lib/pkgconfig/heimdal-gssapi.pc /lib64/pkgconfig/heimdal-gssapi.pc
@@ -439,9 +432,9 @@ make DESTDIR=$INSTALL_DIR/openvas-smb install
 sudo cp -rv $INSTALL_DIR/openvas-smb/* /
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Building & installing openvas-scanner"
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 
 # Download openvas-scanner sources
@@ -469,9 +462,9 @@ make DESTDIR=$INSTALL_DIR/openvas-scanner install
 sudo cp -rv $INSTALL_DIR/openvas-scanner/* /
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Building & installing ospd-openvas"
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 
 # Download ospd-openvas sources
@@ -513,9 +506,9 @@ sudo systemctl daemon-reload
 sudo systemctl enable ospd-openvas
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Building & installing notus-scanner"
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 
 
@@ -556,9 +549,9 @@ sudo systemctl daemon-reload
 sudo systemctl enable notus-scanner
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Setting up greenbone-feed-sync, gvm-tools, redis-server & mosquitto"
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 # Greenbone-feed-sync ##################################################################
 
@@ -614,9 +607,9 @@ sudo systemctl enable mosquitto.service
 echo -e "mqtt_server_uri = localhost:1883\ntable_driven_lsc = yes" | sudo tee -a /etc/openvas/openvas.conf
 
 # echo
-# echo -e "${CYAN}#############################################################################"
+# echo -e "#############################################################################"
 # echo -e " Setting up Nginx reverse proxy"
-# echo -e "#############################################################################${NC}"
+# echo -e "#############################################################################"
 # echo
 # sudo dnf install -y nginx
 
@@ -728,9 +721,9 @@ sudo firewall-cmd --permanent --zone=public --add-port=9392/udp
 sudo firewall-cmd --reload
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Setting up the postgres db, gvm permissions & update feed digital signature."
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 # Set directory permissions ############################################################
 sudo mkdir -p /var/lib/notus
@@ -785,9 +778,9 @@ sudo /usr/local/sbin/gvmd --create-user=${ADMIN_USER} --password=${ADMIN_PASS}
 sudo /usr/local/sbin/gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $(sudo /usr/local/sbin/gvmd --get-users --verbose | grep ${ADMIN_USER} | awk '{print $2}')
 
 echo
-echo -e "${CYAN}#############################################################################"
+echo -e "#############################################################################"
 echo -e " Feed updates must complete before gvm will start, please be patient."
-echo -e "#############################################################################${NC}"
+echo -e "#############################################################################"
 echo
 # Update the feed and start the services ###############################################
 # One line because feed updates take so long that cached sudo credentials time out
@@ -801,31 +794,31 @@ rm cert_attributes.txt
 rm cron_1
 
 # Cheap hack to display in stdout client certificate configs (where special characters normally break cut/pasteable output)
-SHOWASTEXT1='$mypwd'
-SHOWASTEXT2='"Cert:\LocalMachine\Root"'
+# SHOWASTEXT1='$mypwd'
+# SHOWASTEXT2='"Cert:\LocalMachine\Root"'
 
-printf "${GREY}+-------------------------------------------------------------------------------------------------------------
-${CYAN}+ WINDOWS CLIENT SELF SIGNED SSL BROWSER CONFIG - SAVE THIS BEFORE CONTINUING!${GREY}
-+
-+ 1. In your home directory is a new Windows friendly version of the new certificate ${LYELLOW}$PROXY_SITE.pfx${GREY}
-+ 2. Copy this .pfx file to a location accessible by Windows.
-+ 3. Import the PFX file into your Windows client with the below Powershell commands (as Administrator):
-\n"
-echo -e "${SHOWASTEXT1} = ConvertTo-SecureString -String "1234" -Force -AsPlainText"
-echo -e "Import-pfxCertificate -FilePath $PROXY_SITE.pfx -Password "${SHOWASTEXT1}" -CertStoreLocation "${SHOWASTEXT2}""
-echo -e "(Clear your browser cache and restart your browser to test.)"
-printf "${GREY}+-------------------------------------------------------------------------------------------------------------
-${CYAN}+ LINUX CLIENT SELF SIGNED SSL BROWSER CONFIG - SAVE THIS BEFORE CONTINUING!${GREY}
-+
-+ 1. In your home directory is a new Linux native OpenSSL certificate ${LYELLOW}$PROXY_SITE.crt${GREY}
-+ 2. Copy this file to a location accessible by Linux.
-+ 3. Import the CRT file into your Linux client certificate store with the below command (as sudo):
-\n"
-echo -e "mkdir -p $HOME/.pki/nssdb && certutil -d $HOME/.pki/nssdb -N"
-echo -e "certutil -d sql:$HOME/.pki/nssdb -A -t "CT,C,c" -n $SSLNAME -i $SSLNAME.crt"
-printf "+-------------------------------------------------------------------------------------------------------------\n"
+# printf "${GREY}+-------------------------------------------------------------------------------------------------------------
+# ${CYAN}+ WINDOWS CLIENT SELF SIGNED SSL BROWSER CONFIG - SAVE THIS BEFORE CONTINUING!${GREY}
+# +
+# + 1. In your home directory is a new Windows friendly version of the new certificate ${LYELLOW}$PROXY_SITE.pfx${GREY}
+# + 2. Copy this .pfx file to a location accessible by Windows.
+# + 3. Import the PFX file into your Windows client with the below Powershell commands (as Administrator):
+# \n"
+# echo -e "${SHOWASTEXT1} = ConvertTo-SecureString -String "1234" -Force -AsPlainText"
+# echo -e "Import-pfxCertificate -FilePath $PROXY_SITE.pfx -Password "${SHOWASTEXT1}" -CertStoreLocation "${SHOWASTEXT2}""
+# echo -e "(Clear your browser cache and restart your browser to test.)"
+# printf "${GREY}+-------------------------------------------------------------------------------------------------------------
+# ${CYAN}+ LINUX CLIENT SELF SIGNED SSL BROWSER CONFIG - SAVE THIS BEFORE CONTINUING!${GREY}
+# +
+# + 1. In your home directory is a new Linux native OpenSSL certificate ${LYELLOW}$PROXY_SITE.crt${GREY}
+# + 2. Copy this file to a location accessible by Linux.
+# + 3. Import the CRT file into your Linux client certificate store with the below command (as sudo):
+# \n"
+# echo -e "mkdir -p $HOME/.pki/nssdb && certutil -d $HOME/.pki/nssdb -N"
+# echo -e "certutil -d sql:$HOME/.pki/nssdb -A -t "CT,C,c" -n $SSLNAME -i $SSLNAME.crt"
+# printf "+-------------------------------------------------------------------------------------------------------------\n"
 echo
-echo -e "${CYAN}GVM build & install complete\nhttps://${PROXY_SITE} - admin login: ${ADMIN_USER} pass: ${ADMIN_PASS}\n${LYELLOW}***Be sure to change the password***${NC}"
+echo -e "GVM build & install complete\nhttps://${PROXY_SITE} - admin login: ${ADMIN_USER} pass: ${ADMIN_PASS}\n${LYELLOW}***Be sure to change the password***"
 echo
 
 #Get end time
