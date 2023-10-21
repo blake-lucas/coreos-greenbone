@@ -30,6 +30,12 @@ export SOURCE_DIR=/tmp/greenbone/source && mkdir -p $SOURCE_DIR
 export INSTALL_DIR=/tmp/greenbone/install && mkdir -p $INSTALL_DIR
 export BUILD_DIR=/tmp/greenbone/build && mkdir -p $BUILD_DIR
 
+# Import the Greenbone Community Signing key
+mkdir /root
+curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
+--import /tmp/GBCommunitySigningKey.asc
+echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" | gpg --import-ownertrust
+
 # GVM user setup and trigger prompt for sudo
 sudo useradd -r -M -U -G wheel -s /usr/sbin/nologin gvm
 sudo usermod -aG gvm root
@@ -181,11 +187,6 @@ sudo tee /etc/ld.so.conf.d/local.conf <<EOF
 EOF
 
 sudo ldconfig
-  
-# Import the Greenbone Community Signing key
-curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
-gpg --import /tmp/GBCommunitySigningKey.asc
-echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" | gpg --import-ownertrust
 
 # Download the gvm-libs sources
 export GVM_LIBS_VERSION=$GVM_LIBS_VERSION
