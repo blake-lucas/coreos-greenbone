@@ -30,6 +30,21 @@ export SOURCE_DIR=$HOME/source && mkdir -p $SOURCE_DIR
 export INSTALL_DIR=$HOME/install && mkdir -p $INSTALL_DIR
 export BUILD_DIR=$HOME/build && mkdir -p $BUILD_DIR
 
+SERVER_NAME=""                       # Preferred server hostname (no installer prompt if has value)
+LOCAL_DOMAIN=""                      # Local DNS suffix (no installer prompt if has value)
+PROXY_SITE=""                        # Reverse proxy DNS name (no installer prompt if has value)
+GVM_URL="http://localhost:9392"      # GVM native web front end URL
+CERT_COUNTRY="US"                    # For RSA SSL cert, 2 country character code only, must not be blank
+CERT_STATE="Minnesota"                # For RSA SSL cert, Optional to change, must not be blank
+CERT_LOCATION="Brooklyn Park"            # For RSA SSL cert, Optional to change, must not be blank
+CERT_ORG="McNallan Technology Solutions"                 # For RSA SSL cert, Optional to change, must not be blank
+CERT_OU="I.T."                       # For RSA SSL cert, Optional to change, must not be blank
+CERT_DAYS="3650"                     # For RSA SSL cert,Number of days until self signed certificate expiry
+DIR_SSL_CERT="/etc/nginx/ssl/cert"   # Nginx SSL certificate location 
+DIR_SSL_KEY="/etc/nginx/ssl/private" # Nginx SSL private key location
+ADMIN_USER="admin"                   # Customise default admin user name
+ADMIN_PASS="admin"                   # First admin user password
+
 clear
 
 # Prepare text output colours
@@ -73,64 +88,95 @@ else
     DOMAIN_SUFFIX="local"
 fi
 
-SERVER_NAME=$HOSTNAME
-LOCAL_DOMAIN=$DOMAIN_SUFFIX
+# We need a default hostname value even if we do not want to change the hostname. This approach allows the
+# user to simply hit enter at the prompt without creating a blank entry into the /etc/hosts file.
+echo
+if [[ -z ${SERVER_NAME} ]]; then
+    echo -e "${LYELLOW}Update Linux system HOSTNAME [Enter to keep: ${HOSTNAME}]${CYAN}"
+    read -p "                        Enter new HOSTNAME : " SERVER_NAME
+    if [[ "${SERVER_NAME}" = "" ]]; then
+        SERVER_NAME=$HOSTNAME
+    fi
+    echo
+    sudo hostnamectl set-hostname $SERVER_NAME >/dev/null
+    sudo sed -i '/127.0.1.1/d' /etc/hosts >/dev/null
+    echo '127.0.1.1       '${SERVER_NAME}'' | sudo tee -a /etc/hosts >/dev/null
+    sudo systemctl restart systemd-hostnamed >/dev/null
+else
+    echo
+    sudo hostnamectl set-hostname $SERVER_NAME >/dev/null
+    sudo sed -i '/127.0.1.1/d' /etc/hosts >/dev/null
+    echo '127.0.1.1       '${SERVER_NAME}'' | sudo tee -a /etc/hosts >/dev/null
+    sudo systemctl restart systemd-hostnamed >/dev/null
+fi
+
+if [[ -z ${LOCAL_DOMAIN} ]]; then
+    echo -e "${LYELLOW}Update Linux LOCAL DNS DOMAIN [Enter to keep: ${DOMAIN_SUFFIX}]${CYAN}"
+    read -p "                        Enter FULL LOCAL DOMAIN NAME: " LOCAL_DOMAIN
+    if [[ "${LOCAL_DOMAIN}" = "" ]]; then
+        LOCAL_DOMAIN=$DOMAIN_SUFFIX
+    fi
+    echo
+    sudo sed -i "/${DEFAULT_IP}/d" /etc/hosts
+    sudo sed -i '/domain/d' /etc/resolv.conf
+    sudo sed -i '/search/d' /etc/resolv.conf
+    # Update the /etc/hosts file with the new domain values
+    echo ''${DEFAULT_IP}'	'${SERVER_NAME}.${LOCAL_DOMAIN} ${SERVER_NAME}'' | sudo tee -a /etc/hosts >/dev/null
+    #Update resolv.conf with new domain and search suffix values
+    echo 'domain	'${LOCAL_DOMAIN}'' | sudo tee -a /etc/resolv.conf >/dev/null
+    echo 'search	'${LOCAL_DOMAIN}'' | sudo tee -a /etc/resolv.conf >/dev/null
+    sudo systemctl restart systemd-hostnamed >/dev/null
+else
+    echo
+    sudo sed -i "/${DEFAULT_IP}/d" /etc/hosts
+    sudo sed -i '/domain/d' /etc/resolv.conf
+    sudo sed -i '/search/d' /etc/resolv.conf
+    # Update the /etc/hosts file with the new domain values
+    echo ''${DEFAULT_IP}'	'${SERVER_NAME}.${LOCAL_DOMAIN} ${SERVER_NAME}'' | sudo tee -a /etc/hosts >/dev/null
+    #Update resolv.conf with new domain and search suffix values
+    echo 'domain	'${LOCAL_DOMAIN}'' | sudo tee -a /etc/resolv.conf >/dev/null
+    echo 'search	'${LOCAL_DOMAIN}'' | sudo tee -a /etc/resolv.conf >/dev/null
+    sudo systemctl restart systemd-hostnamed >/dev/null
+fi
 
 # After updating the hostname and domain names, we use this as the default value for local FQDN/proxy url
 DEFAULT_FQDN=$SERVER_NAME.$LOCAL_DOMAIN
+# If the proxy site dns name is not manually overridden, keep the default FQDN as the proxy site name
+if [ -z "${PROXY_SITE}" ]; then
+    PROXY_SITE="${DEFAULT_FQDN}"
+fi
 
 PIP_OPTIONS="--prefix=$INSTALL_PREFIX --no-warn-script-location ."
 
 echo
 echo -e "${CYAN}#############################################################################"
-echo -e " Installing dependencies"
+echo -e " Updating Linux OS"
 echo -e "#############################################################################${NC}"
 echo
-rpm-ostree install \
+sudo dnf upgrade -y
+
+echo
+echo -e "${CYAN}#############################################################################"
+echo -e " Installing common dependencies"
+echo -e "#############################################################################${NC}"
+echo
+sudo dnf groupinstall 'Development Tools' -y
+sudo dnf install -y \
   cmake \
   python3-pip \
-  gcc-c++ \
-  gettext \
-  diffstat \
-  doxygen \
-  git \
-  patch \
-  patchutils \
-  subversion \
-  systemtap \
-  buildbot \
-  colordiff \
-  cvs \
-  cvs2cl \
-  cvsps \
-  darcs \
-  dejagnu \
-  expect \
-  gambas3-ide \
-  git-annex \
-  git-cola \
-  git2cl \
-  gitg \
-  gtranslator \
-  highlight \
-  lcov \
-  manedit \
-  meld \
-  monotone \
-  myrepos \
-  nemiver \
-  qgit \
-  quilt \
-  rapidsvn \
-  rcs \
-  robodoc \
-  scanmem \
-  subunit \
-  svn2cl \
-  tig \
-  tortoisehg \
-  translate-toolkit \
-  utrac \
+  tar \
+  gcc-c++
+
+sudo tee /etc/ld.so.conf.d/local.conf <<EOF
+/usr/local/lib
+/usr/local/lib64
+EOF
+
+sudo ldconfig
+
+sudo dnf remove net-snmp net-snmp-devel
+sudo dnf install -y \
+  systemd \
   gcc \
   openssl-devel \
   bzip2-devel \
@@ -139,88 +185,23 @@ rpm-ostree install \
   elfutils-libelf-devel \
   rpm-devel \
   perl-devel \
+  procps \
   python3-devel \
   python3-setuptools \
   chrpath \
-  mariadb-connector-c-devel \
-  glib2-devel \
-  gpgme-devel \
-  gnutls-devel \
-  libgcrypt-devel \
-  libuuid-devel \
-  libssh-devel \
-  hiredis-devel \
-  libxml2-devel \
-  libpcap-devel \
-  libnet-devel \
-  paho-c-devel \
-  openldap-devel \
-  radcli-devel \
-  postgresql-server \
-  postgresql-server-devel \
-  postgresql-contrib \
-  libical-devel \
-  xsltproc \
-  libbsd-devel \
-  texlive-scheme-medium \
-  texlive-fontawesome \
-  texlive-fontmfizz \
-  texlive-fonts-churchslavonic \
-  texlive-fontsetup \
-  texlive-fontsize \
-  texlive-fonttable \
-  fontawesome-fonts \
-  gnupg2-smime \
-  xmlstarlet \
-  zip \
-  fakeroot \
-  dpkg \
-  mingw64-nsis \
-  mingw64-gcc \
-  wget \
-  sshpass \
-  samba-client \
-  python3-lxml \
-  gnutls-utils \
-  perl \
-  perl-XML-Twig \
-  libmicrohttpd-devel \
-  popt-devel \
-  libunistring-devel \
-  ncurses-devel \
-  heimdal-devel \
-  bison \
-  libksba-devel \
-  nmap \
-  json-glib-devel \
-  python3-impacket \
-  python3 \
-  python3-setuptools \
-  python3-packaging \
-  python3-wrapt \
-  python3-cffi \
-  python3-psutil \
-  python3-defusedxml \
-  python3-paramiko \
-  python3-redis \
-  python3-gnupg \
-  python3-paho-mqtt \
-  redis \
-  policycoreutils-python-utils \
-  mosquitto \
-  cronie
+  mariadb-connector-c-devel
 
-sudo tee /etc/ld.so.conf.d/local.conf <<EOF
-/usr/local/lib
-/usr/local/lib64
-EOF
-
-sudo ldconfig
-  
 # Import the Greenbone Community Signing key
 curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
 gpg --import /tmp/GBCommunitySigningKey.asc
 echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" | gpg --import-ownertrust
+
+echo
+echo -e "${CYAN}#############################################################################"
+echo -e " Installing gvm-lib"
+echo -e "#############################################################################${NC}"
+echo
+sudo dnf install -y glib2-devel gpgme-devel gnutls-devel libgcrypt-devel libuuid-devel libssh-devel hiredis-devel libxml2-devel libpcap-devel libnet-devel paho-c-devel openldap-devel radcli-devel
 
 # Download the gvm-libs sources
 export GVM_LIBS_VERSION=$GVM_LIBS_VERSION
@@ -252,6 +233,11 @@ echo
 echo -e "${CYAN}#############################################################################"
 echo -e " Building & installing gvmd"
 echo -e "#############################################################################${NC}"
+
+# Install optional dependencies for gvmd
+sudo dnf install -y glib2-devel gnutls-devel postgresql-server-devel libical-devel xsltproc rsync libbsd-devel gpgme-devel postgresql-server postgresql-contrib
+
+sudo dnf install -y --setopt=install_weak_deps=False texlive-scheme-medium texlive-fontawesome texlive-fontmfizz texlive-fonts-churchslavonic texlive-fontsetup texlive-fontsize texlive-fonttable fontawesome-fonts gnupg2-smime openssh-clients xmlstarlet zip rpm fakeroot dpkg mingw64-nsis gnupg wget sshpass socat samba-client python3-lxml gnutls-utils perl-XML-Twig
 
 # Download the gvmd sources
 export GVMD_VERSION=$GVMD_VERSION
@@ -316,6 +302,7 @@ echo -e "${CYAN}################################################################
 echo -e " Building & installing pg-gvm"
 echo -e "#############################################################################${NC}"
 echo
+sudo dnf install -y glib2-devel gnutls-devel postgresql-server-devel libical-devel
 
 # Download the pg-gvm sources
 export PG_GVM_VERSION=$PG_GVM_VERSION
@@ -359,7 +346,7 @@ echo
 sudo firewall-cmd --add-port=9392/tcp
 sudo firewall-cmd --runtime-to-permanent
 
-
+sudo dnf install -y glib2-devel gnutls-devel libmicrohttpd-devel libxml2-devel
 
 # Download gsad sources
 export GSAD_VERSION=$GSAD_VERSION
@@ -415,6 +402,7 @@ echo -e "${CYAN}################################################################
 echo -e " Building & installing openvas-smb"
 echo -e "#############################################################################${NC}"
 echo
+sudo dnf install -y glib2-devel gnutls-devel popt-devel mingw64-gcc libunistring-devel ncurses-devel heimdal-devel perl
 
 sudo cp /usr/lib64/heimdal/lib/pkgconfig/heimdal-gssapi.pc /lib64/pkgconfig/heimdal-gssapi.pc
 sudo cp /usr/lib64/heimdal/lib/pkgconfig/heimdal-krb5.pc /lib64/pkgconfig/heimdal-krb5.pc
@@ -443,6 +431,7 @@ echo -e "${CYAN}################################################################
 echo -e " Building & installing openvas-scanner"
 echo -e "#############################################################################${NC}"
 echo
+sudo dnf install -y bison glib2-devel gnutls-devel libgcrypt-devel libpcap-devel gpgme-devel libksba-devel rsync nmap json-glib-devel libbsd-devel python3-impacket
 
 # Download openvas-scanner sources
 export OPENVAS_SCANNER_VERSION=$OPENVAS_SCANNER_VERSION
@@ -473,6 +462,7 @@ echo -e "${CYAN}################################################################
 echo -e " Building & installing ospd-openvas"
 echo -e "#############################################################################${NC}"
 echo
+sudo dnf install -y python3 python3-pip python3-setuptools python3-packaging python3-wrapt python3-cffi python3-psutil python3-lxml python3-defusedxml python3-paramiko python3-redis python3-gnupg python3-paho-mqtt
 
 # Download ospd-openvas sources
 export OSPD_OPENVAS_VERSION=$OSPD_OPENVAS_VERSION
@@ -517,7 +507,7 @@ echo -e "${CYAN}################################################################
 echo -e " Building & installing notus-scanner"
 echo -e "#############################################################################${NC}"
 echo
-
+sudo dnf install -y python3 python3-pip python3-setuptools python3-paho-mqtt python3-psutil python3-gnupg
 
 # Download notus-scanner sources
 curl -f -L https://github.com/greenbone/notus-scanner/archive/refs/tags/v$NOTUS_VERSION.tar.gz -o $SOURCE_DIR/notus-scanner-$NOTUS_VERSION.tar.gz
@@ -561,14 +551,17 @@ echo -e " Setting up greenbone-feed-sync, gvm-tools, redis-server & mosquitto"
 echo -e "#############################################################################${NC}"
 echo
 # Greenbone-feed-sync ##################################################################
+sudo dnf install -y python3 python3-pip
 
 sudo python3 -m pip install ${PIP_OPTIONS} greenbone-feed-sync
 
 # Gvm-tools ############################################################################
+sudo dnf install -y python3 python3-pip python3-setuptools python3-packaging python3-lxml python3-defusedxml python3-paramiko
 
 sudo python3 -m pip install ${PIP_OPTIONS} gvm-tools
 
 # Redis server #########################################################################
+sudo dnf install -y redis policycoreutils-python-utils
 sudo semanage fcontext -a -f a -t redis_var_run_t -r s0 '/var/run/redis-openvas(/.*)?'
 
 sudo sh -c 'cat << EOF > /etc/tmpfiles.d/redis-openvas.conf
@@ -609,6 +602,7 @@ sudo systemctl enable redis-server@openvas.service
 sudo usermod -aG redis gvm
 
 # Mqtt broker ##########################################################################
+sudo dnf install -y mosquitto
 sudo systemctl start mosquitto.service
 sudo systemctl enable mosquitto.service
 echo -e "mqtt_server_uri = localhost:1883\ntable_driven_lsc = yes" | sudo tee -a /etc/openvas/openvas.conf
@@ -760,6 +754,7 @@ sudo cp -r /tmp/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
 sudo chown -R gvm:gvm $OPENVAS_GNUPG_HOME
 
 # Schedule a random daily feed update time
+sudo dnf install cronie -y
 HOUR=$(shuf -i 0-23 -n 1)
 MINUTE=$(shuf -i 0-59 -n 1)
 sudo crontab -l >cron_1
