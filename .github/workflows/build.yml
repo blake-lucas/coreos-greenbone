@@ -35,8 +35,6 @@ jobs:
     outputs:
       stable_linux: ${{ steps.stable.outputs.linux }}
       stable_version: ${{ steps.stable.outputs.version }}
-      testing_linux: ${{ steps.testing.outputs.linux }}
-      testing_version: ${{ steps.testing.outputs.version }}
     steps:
       - name: Fetch CoreOS stable versions
         id: stable
@@ -46,18 +44,9 @@ jobs:
           echo "linux=$linux" >> $GITHUB_OUTPUT
           version=$(jq -r '.["Labels"]["version"]' inspect.json)
           echo "version=$version" >> $GITHUB_OUTPUT
-      - name: Fetch CoreOS testing versions
-        id: testing
-        run: |
-          skopeo inspect docker://quay.io/fedora/fedora-coreos:testing > inspect.json
-          linux=$(jq -r '.["Labels"]["ostree.linux"]' inspect.json)
-          echo "linux=$linux" >> $GITHUB_OUTPUT
-          version=$(jq -r '.["Labels"]["version"]' inspect.json)
-          echo "version=$version" >> $GITHUB_OUTPUT
       - name: Echo outputs
         run: |
           echo "${{ toJSON(steps.stable.outputs) }}"
-          echo "${{ toJSON(steps.testing.outputs) }}"
 
   build_fcos:
     name: Build CoreOS
@@ -72,20 +61,14 @@ jobs:
       fail-fast: false
       matrix:
         image_name:
-          - fedora-coreos
+          - coreos-greenbone
         coreos_version:
           - stable
-          - testing
         pr_prefix:
           - ${{ needs.build_info.outputs.pr_prefix }}
         include:
           - coreos_version: stable
             image_version: ${{ needs.coreos_versions.outputs.stable_version }}
-          - coreos_version: testing
-            image_version: ${{ needs.coreos_versions.outputs.testing_version }}
-        exclude:
-          - coreos_version: stable
-          - coreos_version: testing
     steps:
       # Checkout push-to-registry action GitHub repository
       - name: Checkout Push to Registry action
