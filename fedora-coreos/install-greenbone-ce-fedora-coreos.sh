@@ -35,40 +35,14 @@ sudo useradd -r -M -U -G wheel -s /usr/sbin/nologin gvm
 sudo usermod -aG gvm root
 
 # Get the default route interface IP
-DEFAULT_IP=$(ip addr show $(ip route | awk '/default/ { print $5 }') | grep "inet" | head -n 1 | awk '/inet/ {print $2}' | cut -d'/' -f1)
+# DEFAULT_IP=$(ip addr show $(ip route | awk '/default/ { print $5 }') | grep "inet" | head -n 1 | awk '/inet/ {print $2}' | cut -d'/' -f1)
 
-# Get an initial dns search suffix for use as a starting default for a local dns domain prompt value
-get_domain_suffix() {
-    echo "$1" | awk '{print $2}'
-}
-search_line=$(grep -E '^search[[:space:]]+' /etc/resolv.conf)
-domain_line=$(grep -E '^domain[[:space:]]+' /etc/resolv.conf)
-if [ -n "$search_line" ] && [ -n "$domain_line" ]; then
-    # If both "search" and "domain" lines exist, extract the domain suffix from both
-    search_suffix=$(get_domain_suffix "$search_line")
-    domain_suffix=$(get_domain_suffix "$domain_line")
-    # Print the domain suffix that appears first
-    if [ ${#search_suffix} -lt ${#domain_suffix} ]; then
-        DOMAIN_SUFFIX=$search_suffix
-    else
-        DOMAIN_SUFFIX=$domain_suffix
-    fi
-elif [ -n "$search_line" ]; then
-    # If only "search" line exists
-    DOMAIN_SUFFIX=$(get_domain_suffix "$search_line")
-elif [ -n "$domain_line" ]; then
-    # If only "domain" line exists
-    DOMAIN_SUFFIX=$(get_domain_suffix "$domain_line")
-else
-    # If no "search" or "domain" lines found
-    DOMAIN_SUFFIX="local"
-fi
-
-SERVER_NAME=$HOSTNAME
-LOCAL_DOMAIN=$DOMAIN_SUFFIX
+# DOMAIN_SUFFIX="local"
+# SERVER_NAME=$HOSTNAME
+# LOCAL_DOMAIN=$DOMAIN_SUFFIX
 
 # After updating the hostname and domain names, we use this as the default value for local FQDN/proxy url
-DEFAULT_FQDN=$SERVER_NAME.$LOCAL_DOMAIN
+# DEFAULT_FQDN=$SERVER_NAME.$LOCAL_DOMAIN
 
 PIP_OPTIONS="--prefix=$INSTALL_PREFIX --no-warn-script-location ."
 
