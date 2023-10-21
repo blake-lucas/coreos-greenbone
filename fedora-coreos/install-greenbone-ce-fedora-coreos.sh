@@ -32,7 +32,7 @@ export BUILD_DIR=/tmp/greenbone/build && mkdir -p $BUILD_DIR
 
 # GVM user setup and trigger prompt for sudo
 sudo useradd -r -M -U -G wheel -s /usr/sbin/nologin gvm
-sudo usermod -aG gvm $USER
+sudo usermod -aG gvm root
 
 # Get the default route interface IP
 DEFAULT_IP=$(ip addr show $(ip route | awk '/default/ { print $5 }') | grep "inet" | head -n 1 | awk '/inet/ {print $2}' | cut -d'/' -f1)
