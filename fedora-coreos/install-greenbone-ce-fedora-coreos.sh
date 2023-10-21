@@ -26,9 +26,9 @@ export NOTUS_VERSION=22.6.0             # https://github.com/greenbone/notus-sca
 # Set global variables and paths
 export INSTALL_PREFIX=/usr/local
 export PATH=$PATH:$INSTALL_PREFIX/sbin
-export SOURCE_DIR=$HOME/source && mkdir -p $SOURCE_DIR
-export INSTALL_DIR=$HOME/install && mkdir -p $INSTALL_DIR
-export BUILD_DIR=$HOME/build && mkdir -p $BUILD_DIR
+export SOURCE_DIR=/tmp/greenbone/source && mkdir -p $SOURCE_DIR
+export INSTALL_DIR=/tmp/greenbone/install && mkdir -p $INSTALL_DIR
+export BUILD_DIR=/tmp/greenbone/build && mkdir -p $BUILD_DIR
 
 clear
 
