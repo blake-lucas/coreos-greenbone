@@ -7,7 +7,7 @@
 #######################################################################################################################
 
 #Exit on error
-#set -ouex pipefail
+set -ouex pipefail
 
 #Get start time to track install duration
 start=$(date +%s)

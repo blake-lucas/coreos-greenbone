@@ -7,9 +7,10 @@ ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
 COPY *.sh /tmp/
 
 RUN mkdir -p /var/lib/alternatives \
+    && chmod +x /tmp/install-greenbone-ce-fedora-coreos.sh \
     && /tmp/install-greenbone-ce-fedora-coreos.sh \
     && mv /var/lib/alternatives /staged-alternatives \
-    && rm -fr /tmp/* /var/* \
+    && rm -fr /tmp/* \
     && ostree container commit \
     && mkdir -p /var/lib && mv /staged-alternatives /var/lib/alternatives \
     && mkdir -p /tmp /var/tmp \
