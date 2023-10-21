@@ -6,6 +6,10 @@ ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
 
 COPY *.sh /tmp/
 
+RUN echo "Installing dependencies" && \
+    chmod +x /tmp/install-deps.sh &&  \
+    /tmp/install-deps.sh
+
 RUN mkdir -p /var/lib/alternatives \
     && chmod +x /tmp/install-greenbone-ce-fedora-coreos.sh \
     && /tmp/install-greenbone-ce-fedora-coreos.sh \

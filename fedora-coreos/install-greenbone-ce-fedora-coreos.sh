@@ -31,10 +31,10 @@ export INSTALL_DIR=/tmp/greenbone/install && mkdir -p $INSTALL_DIR
 export BUILD_DIR=/tmp/greenbone/build && mkdir -p $BUILD_DIR
 
 # Import the Greenbone Community Signing key
-mkdir /root/.gpg
+mkdir /tmp/gpg
 curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
---import /tmp/GBCommunitySigningKey.asc
-echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" | gpg --import-ownertrust
+gpg --homedir /tmp/gpg --import /tmp/GBCommunitySigningKey.asc
+echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" | gpg --homedir /tmp/gpg --import-ownertrust
 
 # GVM user setup and trigger prompt for sudo
 sudo useradd -r -M -U -G wheel -s /usr/sbin/nologin gvm
@@ -52,135 +52,6 @@ sudo usermod -aG gvm root
 
 PIP_OPTIONS="--prefix=$INSTALL_PREFIX --no-warn-script-location ."
 
-echo
-echo -e "#############################################################################"
-echo -e " Installing dependencies"
-echo -e "#############################################################################"
-echo
-rpm-ostree install \
-  cmake \
-  python3-pip \
-  gcc-c++ \
-  gettext \
-  diffstat \
-  doxygen \
-  git \
-  patch \
-  patchutils \
-  subversion \
-  systemtap \
-  buildbot \
-  colordiff \
-  cvs \
-  cvs2cl \
-  cvsps \
-  darcs \
-  dejagnu \
-  expect \
-  gambas3-ide \
-  git-annex \
-  git-cola \
-  git2cl \
-  gitg \
-  gtranslator \
-  highlight \
-  lcov \
-  manedit \
-  meld \
-  monotone \
-  myrepos \
-  nemiver \
-  qgit \
-  quilt \
-  rapidsvn \
-  rcs \
-  robodoc \
-  scanmem \
-  subunit \
-  svn2cl \
-  tig \
-  tortoisehg \
-  translate-toolkit \
-  utrac \
-  gcc \
-  openssl-devel \
-  bzip2-devel \
-  elfutils-devel \
-  libselinux-devel \
-  elfutils-libelf-devel \
-  rpm-devel \
-  perl-devel \
-  python3-devel \
-  python3-setuptools \
-  chrpath \
-  mariadb-connector-c-devel \
-  glib2-devel \
-  gpgme-devel \
-  gnutls-devel \
-  libgcrypt-devel \
-  libuuid-devel \
-  libssh-devel \
-  hiredis-devel \
-  libxml2-devel \
-  libpcap-devel \
-  libnet-devel \
-  paho-c-devel \
-  openldap-devel \
-  radcli-devel \
-  postgresql-server \
-  postgresql-server-devel \
-  postgresql-contrib \
-  libical-devel \
-  xsltproc \
-  libbsd-devel \
-  texlive-scheme-medium \
-  texlive-fontawesome \
-  texlive-fontmfizz \
-  texlive-fonts-churchslavonic \
-  texlive-fontsetup \
-  texlive-fontsize \
-  texlive-fonttable \
-  fontawesome-fonts \
-  gnupg2-smime \
-  xmlstarlet \
-  zip \
-  fakeroot \
-  dpkg \
-  mingw64-nsis \
-  mingw64-gcc \
-  wget \
-  sshpass \
-  samba-client \
-  python3-lxml \
-  gnutls-utils \
-  perl \
-  perl-XML-Twig \
-  libmicrohttpd-devel \
-  popt-devel \
-  libunistring-devel \
-  ncurses-devel \
-  heimdal-devel \
-  bison \
-  libksba-devel \
-  nmap \
-  json-glib-devel \
-  python3-impacket \
-  python3 \
-  python3-setuptools \
-  python3-packaging \
-  python3-wrapt \
-  python3-cffi \
-  python3-psutil \
-  python3-defusedxml \
-  python3-paramiko \
-  python3-redis \
-  python3-gnupg \
-  python3-paho-mqtt \
-  redis \
-  policycoreutils-python-utils \
-  mosquitto \
-  cronie
-
 sudo tee /etc/ld.so.conf.d/local.conf <<EOF
 /usr/local/lib
 /usr/local/lib64
@@ -192,7 +63,7 @@ sudo ldconfig
 export GVM_LIBS_VERSION=$GVM_LIBS_VERSION
 curl -f -L https://github.com/greenbone/gvm-libs/archive/refs/tags/v$GVM_LIBS_VERSION.tar.gz -o $SOURCE_DIR/gvm-libs-$GVM_LIBS_VERSION.tar.gz
 curl -f -L https://github.com/greenbone/gvm-libs/releases/download/v$GVM_LIBS_VERSION/gvm-libs-v$GVM_LIBS_VERSION.tar.gz.asc -o $SOURCE_DIR/gvm-libs-$GVM_LIBS_VERSION.tar.gz.asc
-gpg --verify $SOURCE_DIR/gvm-libs-$GVM_LIBS_VERSION.tar.gz.asc $SOURCE_DIR/gvm-libs-$GVM_LIBS_VERSION.tar.gz
+gpg --homedir /tmp/gpg --verify $SOURCE_DIR/gvm-libs-$GVM_LIBS_VERSION.tar.gz.asc $SOURCE_DIR/gvm-libs-$GVM_LIBS_VERSION.tar.gz
 
 # Build gvm-libs
 tar -C $SOURCE_DIR -xvzf $SOURCE_DIR/gvm-libs-$GVM_LIBS_VERSION.tar.gz
@@ -223,7 +94,7 @@ echo -e "#######################################################################
 export GVMD_VERSION=$GVMD_VERSION
 curl -f -L https://github.com/greenbone/gvmd/archive/refs/tags/v$GVMD_VERSION.tar.gz -o $SOURCE_DIR/gvmd-$GVMD_VERSION.tar.gz
 curl -f -L https://github.com/greenbone/gvmd/releases/download/v$GVMD_VERSION/gvmd-$GVMD_VERSION.tar.gz.asc -o $SOURCE_DIR/gvmd-$GVMD_VERSION.tar.gz.asc
-gpg --verify $SOURCE_DIR/gvmd-$GVMD_VERSION.tar.gz.asc $SOURCE_DIR/gvmd-$GVMD_VERSION.tar.gz
+gpg --homedir /tmp/gpg --verify $SOURCE_DIR/gvmd-$GVMD_VERSION.tar.gz.asc $SOURCE_DIR/gvmd-$GVMD_VERSION.tar.gz
 
 # Build gvmd
 tar -C $SOURCE_DIR -xvzf $SOURCE_DIR/gvmd-$GVMD_VERSION.tar.gz
@@ -287,7 +158,7 @@ echo
 export PG_GVM_VERSION=$PG_GVM_VERSION
 curl -f -L https://github.com/greenbone/pg-gvm/archive/refs/tags/v$PG_GVM_VERSION.tar.gz -o $SOURCE_DIR/pg-gvm-$PG_GVM_VERSION.tar.gz
 curl -f -L https://github.com/greenbone/pg-gvm/releases/download/v$PG_GVM_VERSION/pg-gvm-$PG_GVM_VERSION.tar.gz.asc -o $SOURCE_DIR/pg-gvm-$PG_GVM_VERSION.tar.gz.asc
-gpg --verify $SOURCE_DIR/pg-gvm-$PG_GVM_VERSION.tar.gz.asc $SOURCE_DIR/pg-gvm-$PG_GVM_VERSION.tar.gz
+gpg --homedir /tmp/gpg --verify $SOURCE_DIR/pg-gvm-$PG_GVM_VERSION.tar.gz.asc $SOURCE_DIR/pg-gvm-$PG_GVM_VERSION.tar.gz
 
 # Build pg-gvm
 tar -C $SOURCE_DIR -xvzf $SOURCE_DIR/pg-gvm-$PG_GVM_VERSION.tar.gz
@@ -309,7 +180,7 @@ echo
 export GSA_VERSION=$GSA_VERSION
 curl -f -L https://github.com/greenbone/gsa/releases/download/v$GSA_VERSION/gsa-dist-$GSA_VERSION.tar.gz -o $SOURCE_DIR/gsa-$GSA_VERSION.tar.gz
 curl -f -L https://github.com/greenbone/gsa/releases/download/v$GSA_VERSION/gsa-dist-$GSA_VERSION.tar.gz.asc -o $SOURCE_DIR/gsa-$GSA_VERSION.tar.gz.asc
-gpg --verify $SOURCE_DIR/gsa-$GSA_VERSION.tar.gz.asc $SOURCE_DIR/gsa-$GSA_VERSION.tar.gz
+gpg --homedir /tmp/gpg --verify $SOURCE_DIR/gsa-$GSA_VERSION.tar.gz.asc $SOURCE_DIR/gsa-$GSA_VERSION.tar.gz
 
 # Extract and install gsa
 mkdir -p $SOURCE_DIR/gsa-$GSA_VERSION
@@ -331,7 +202,7 @@ sudo firewall-cmd --runtime-to-permanent
 export GSAD_VERSION=$GSAD_VERSION
 curl -f -L https://github.com/greenbone/gsad/archive/refs/tags/v$GSAD_VERSION.tar.gz -o $SOURCE_DIR/gsad-$GSAD_VERSION.tar.gz
 curl -f -L https://github.com/greenbone/gsad/releases/download/v$GSAD_VERSION/gsad-$GSAD_VERSION.tar.gz.asc -o $SOURCE_DIR/gsad-$GSAD_VERSION.tar.gz.asc
-gpg --verify $SOURCE_DIR/gsad-$GSAD_VERSION.tar.gz.asc $SOURCE_DIR/gsad-$GSAD_VERSION.tar.gz
+gpg --homedir /tmp/gpg --verify $SOURCE_DIR/gsad-$GSAD_VERSION.tar.gz.asc $SOURCE_DIR/gsad-$GSAD_VERSION.tar.gz
 
 # Build gsad
 tar -C $SOURCE_DIR -xvzf $SOURCE_DIR/gsad-$GSAD_VERSION.tar.gz
@@ -389,7 +260,7 @@ sudo cp /usr/lib64/heimdal/lib/pkgconfig/heimdal-krb5.pc /lib64/pkgconfig/heimda
 export OPENVAS_SMB_VERSION=$OPENVAS_SMB_VERSION
 curl -f -L https://github.com/greenbone/openvas-smb/archive/refs/tags/v$OPENVAS_SMB_VERSION.tar.gz -o $SOURCE_DIR/openvas-smb-$OPENVAS_SMB_VERSION.tar.gz
 curl -f -L https://github.com/greenbone/openvas-smb/releases/download/v$OPENVAS_SMB_VERSION/openvas-smb-v$OPENVAS_SMB_VERSION.tar.gz.asc -o $SOURCE_DIR/openvas-smb-$OPENVAS_SMB_VERSION.tar.gz.asc
-gpg --verify $SOURCE_DIR/openvas-smb-$OPENVAS_SMB_VERSION.tar.gz.asc $SOURCE_DIR/openvas-smb-$OPENVAS_SMB_VERSION.tar.gz
+gpg --homedir /tmp/gpg --verify $SOURCE_DIR/openvas-smb-$OPENVAS_SMB_VERSION.tar.gz.asc $SOURCE_DIR/openvas-smb-$OPENVAS_SMB_VERSION.tar.gz
 
 # Build openvas-smb
 tar -C $SOURCE_DIR -xvzf $SOURCE_DIR/openvas-smb-$OPENVAS_SMB_VERSION.tar.gz
@@ -414,7 +285,7 @@ echo
 export OPENVAS_SCANNER_VERSION=$OPENVAS_SCANNER_VERSION
 curl -f -L https://github.com/greenbone/openvas-scanner/archive/refs/tags/v$OPENVAS_SCANNER_VERSION.tar.gz -o $SOURCE_DIR/openvas-scanner-$OPENVAS_SCANNER_VERSION.tar.gz
 curl -f -L https://github.com/greenbone/openvas-scanner/releases/download/v$OPENVAS_SCANNER_VERSION/openvas-scanner-v$OPENVAS_SCANNER_VERSION.tar.gz.asc -o $SOURCE_DIR/openvas-scanner-$OPENVAS_SCANNER_VERSION.tar.gz.asc
-gpg --verify $SOURCE_DIR/openvas-scanner-$OPENVAS_SCANNER_VERSION.tar.gz.asc $SOURCE_DIR/openvas-scanner-$OPENVAS_SCANNER_VERSION.tar.gz
+gpg --homedir /tmp/gpg --verify $SOURCE_DIR/openvas-scanner-$OPENVAS_SCANNER_VERSION.tar.gz.asc $SOURCE_DIR/openvas-scanner-$OPENVAS_SCANNER_VERSION.tar.gz
 
 # Build openvas-scanner
 tar -C $SOURCE_DIR -xvzf $SOURCE_DIR/openvas-scanner-$OPENVAS_SCANNER_VERSION.tar.gz
@@ -444,7 +315,7 @@ echo
 export OSPD_OPENVAS_VERSION=$OSPD_OPENVAS_VERSION
 curl -f -L https://github.com/greenbone/ospd-openvas/archive/refs/tags/v$OSPD_OPENVAS_VERSION.tar.gz -o $SOURCE_DIR/ospd-openvas-$OSPD_OPENVAS_VERSION.tar.gz
 curl -f -L https://github.com/greenbone/ospd-openvas/releases/download/v$OSPD_OPENVAS_VERSION/ospd-openvas-v$OSPD_OPENVAS_VERSION.tar.gz.asc -o $SOURCE_DIR/ospd-openvas-$OSPD_OPENVAS_VERSION.tar.gz.asc
-gpg --verify $SOURCE_DIR/ospd-openvas-$OSPD_OPENVAS_VERSION.tar.gz.asc $SOURCE_DIR/ospd-openvas-$OSPD_OPENVAS_VERSION.tar.gz
+gpg --homedir /tmp/gpg --verify $SOURCE_DIR/ospd-openvas-$OSPD_OPENVAS_VERSION.tar.gz.asc $SOURCE_DIR/ospd-openvas-$OSPD_OPENVAS_VERSION.tar.gz
 tar -C $SOURCE_DIR -xvzf $SOURCE_DIR/ospd-openvas-$OSPD_OPENVAS_VERSION.tar.gz
 
 # Install ospd-openvas
@@ -488,7 +359,7 @@ echo
 # Download notus-scanner sources
 curl -f -L https://github.com/greenbone/notus-scanner/archive/refs/tags/v$NOTUS_VERSION.tar.gz -o $SOURCE_DIR/notus-scanner-$NOTUS_VERSION.tar.gz
 curl -f -L https://github.com/greenbone/notus-scanner/releases/download/v$NOTUS_VERSION/notus-scanner-$NOTUS_VERSION.tar.gz.asc -o $SOURCE_DIR/notus-scanner-$NOTUS_VERSION.tar.gz.asc
-gpg --verify $SOURCE_DIR/notus-scanner-$NOTUS_VERSION.tar.gz.asc $SOURCE_DIR/notus-scanner-$NOTUS_VERSION.tar.gz
+gpg --homedir /tmp/gpg --verify $SOURCE_DIR/notus-scanner-$NOTUS_VERSION.tar.gz.asc $SOURCE_DIR/notus-scanner-$NOTUS_VERSION.tar.gz
 tar -C $SOURCE_DIR -xvzf $SOURCE_DIR/notus-scanner-$NOTUS_VERSION.tar.gz
 
 # Install notus-scanner
@@ -718,8 +589,8 @@ sudo chmod 6750 /usr/local/sbin/gvmd
 curl -f -L https://www.greenbone.net/GBCommunitySigningKey.asc -o /tmp/GBCommunitySigningKey.asc
 export GNUPGHOME=/tmp/openvas-gnupg
 mkdir -p $GNUPGHOME
-gpg --import /tmp/GBCommunitySigningKey.asc
-echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" | gpg --import-ownertrust
+gpg --homedir /tmp/gpg --import /tmp/GBCommunitySigningKey.asc
+echo "8AE4BE429B60A59B311C2E739823FAA60ED1E580:6:" | gpg --homedir /tmp/gpg --import-ownertrust
 export OPENVAS_GNUPG_HOME=/etc/openvas/gnupg
 sudo mkdir -p $OPENVAS_GNUPG_HOME
 sudo cp -r /tmp/openvas-gnupg/* $OPENVAS_GNUPG_HOME/
