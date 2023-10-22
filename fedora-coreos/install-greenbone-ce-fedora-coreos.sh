@@ -78,12 +78,19 @@ cmake $SOURCE_DIR/gvm-libs-$GVM_LIBS_VERSION \
 make -j$(nproc)
 mkdir -p $INSTALL_DIR/gvm-libs
 make DESTDIR=$INSTALL_DIR/gvm-libs install
-sudo cp -rv $INSTALL_DIR/gvm-libs/* /
+
+ls -la /usr
+ls -la /var
+
+# sudo cp -rv $INSTALL_DIR/gvm-libs/usr/local/* /var/usrlocal/
+# sudo cp -rv $INSTALL_DIR/gvm-libs/usr/lib/* /usr/lib/
+rsync -av $INSTALL_DIR/gvm-libs/* /
 
 # Install gvm-libs
 mkdir -p $INSTALL_DIR/gvm-libs
 make DESTDIR=$INSTALL_DIR/gvm-libs install
-sudo cp -rv $INSTALL_DIR/gvm-libs/* /
+# sudo cp -rv $INSTALL_DIR/gvm-libs/* /var/
+rsync -av $INSTALL_DIR/gvm-libs/* /
 
 echo
 echo -e "#############################################################################"
