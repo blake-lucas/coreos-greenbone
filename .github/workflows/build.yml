@@ -50,7 +50,7 @@ jobs:
 
   build_greenbone_bins:
     name: Build Greenbone binaries
-    runs-on: fedora-38
+    runs-on: ubuntu-22.04
     if: always() && !cancelled()
     needs: [build_info]
     permissions:
