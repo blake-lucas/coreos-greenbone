@@ -1,4 +1,5 @@
 FROM docker.io/library/ubuntu:22.04
+ENV TZ=America/Chicago
 
 # RUN echo "Installing dependencies" && \
 #     dnf install -y \
@@ -170,6 +171,9 @@ FROM docker.io/library/ubuntu:22.04
 #         policycoreutils-python-utils
 
 COPY install-deps.sh /tmp/install-deps.sh
+
+# Workaround for getting stuck at configuring tzdata during install
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN chmod +x /tmp/install-deps.sh && \
      /tmp/install-deps.sh

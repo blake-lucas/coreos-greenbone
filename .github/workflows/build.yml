@@ -85,6 +85,7 @@ jobs:
           COMMIT_TAGS+=("${SHA_SHORT}")
 
           BUILD_TAGS=("${TIMESTAMP}")
+          BUILD_TAGS+=("latest")
 
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
               echo "Generated the following commit tags: "
@@ -227,6 +228,7 @@ jobs:
           COMMIT_TAGS+=("${SHA_SHORT}-${COREOS_VERSION}")
 
           BUILD_TAGS=("${COREOS_VERSION}" "${COREOS_VERSION}-${TIMESTAMP}")
+          BUILD_TAGS+=("latest")
 
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
               echo "Generated the following commit tags: "

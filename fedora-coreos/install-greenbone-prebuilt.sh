@@ -1,6 +1,6 @@
 #!/bin/bash
 #######################################################################################################################
-# Greenbone Vulnerability Manager source build script
+# Greenbone Vulnerability Manager install script
 # For Fedora CoreOS
 # Blake Lucas
 # October 2023

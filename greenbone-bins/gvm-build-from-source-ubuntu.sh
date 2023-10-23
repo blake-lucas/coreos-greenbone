@@ -595,4 +595,9 @@ echo -e "mqtt_server_uri = localhost:1883\ntable_driven_lsc = yes" | sudo tee -a
 # echo -e "certutil -d sql:$HOME/.pki/nssdb -A -t "CT,C,c" -n $SSLNAME -i $SSLNAME.crt"
 # printf "+-------------------------------------------------------------------------------------------------------------\n"
 # echo
+
+echo -e "Listing output folders"
+find $INSTALL_DIR -type d -exec ls -la {} \;
+
+
 echo -e "GVM build complete"
