@@ -1,11 +1,40 @@
-ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
-
-FROM quay.io/fedora/fedora-coreos:${COREOS_VERSION}
-
-ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
+FROM quay.io/fedora/fedora:38
 
 RUN echo "Installing dependencies" && \
-    rpm-ostree install \
+    dnf install -y \
+        libbsd \
+        libbsd-devel \
+        libical-devel \
+        xsltproc \
+        glib2-devel \
+        gnutls-devel \
+        postgresql-server-devel \
+        libical-devel \
+        texlive-scheme-medium \
+        texlive-fontawesome \
+        texlive-fontmfizz \
+        texlive-fonts-churchslavonic \
+        texlive-fontsetup \
+        texlive-fontsize \
+        texlive-fonttable \
+        fontawesome-fonts \
+        gnupg2-smime \
+        openssh-clients \
+        xmlstarlet \
+        zip \
+        rpm \
+        fakeroot \
+        dpkg \
+        mingw64-nsis \
+        gnupg \
+        wget \
+        sshpass \
+        socat \
+        samba-client \
+        python3-lxml \
+        gnutls-utils \
+        perl-XML-Twig \
+        rsync \
         binutils \
         cmake \
         python3-pip \
@@ -137,36 +166,11 @@ RUN echo "Installing dependencies" && \
         libksba-devel \
         nmap \
         json-glib-devel \
-        python3-impacket \
-        python3 \
-        python3-setuptools \
-        python3-packaging \
-        python3-wrapt \
-        python3-cffi \
-        python3-psutil \
-        python3-defusedxml \
-        python3-paramiko \
-        python3-redis \
-        python3-gnupg \
-        python3-paho-mqtt \
         redis \
         policycoreutils-python-utils
 
 COPY *.sh /tmp/
 
-# RUN echo "Installing dependencies" && \
-#     chmod +x /tmp/install-deps.sh &&  \
-#     /tmp/install-deps.sh
-
-# Fix for ld: command not found
-RUN ln -sf /usr/bin/ld.bfd /etc/alternatives/ld && ln -sf /etc/alternatives/ld /usr/bin/ld && ld --version
-
-RUN mkdir -p /var/lib/alternatives \
-    && chmod +x /tmp/install-greenbone-ce-fedora-coreos.sh \
-    && /tmp/install-greenbone-ce-fedora-coreos.sh \
-    && mv /var/lib/alternatives /staged-alternatives \
-    && rm -fr /tmp/* \
-    && ostree container commit \
-    && mkdir -p /var/lib && mv /staged-alternatives /var/lib/alternatives \
-    && mkdir -p /tmp /var/tmp \
-    && chmod -R 1777 /tmp /var/tmp
+RUN chmod +x /tmp/build-greenbone.sh \
+    && /tmp/build-greenbone.sh \
+    && rm -rf /tmp/* \
