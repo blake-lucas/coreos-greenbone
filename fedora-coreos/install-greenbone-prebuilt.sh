@@ -9,10 +9,26 @@
 # Exit on error
 set -ouex pipefail
 
+# Select GVM install versions           (check below links for latest release versions)
+export GVM_LIBS_VERSION=22.7.1          # https://github.com/greenbone/gvm-libs
+export GVMD_VERSION=22.9.0              # https://github.com/greenbone/gvmd
+export PG_GVM_VERSION=22.6.1            # https://github.com/greenbone/pg-gvm
+export GSA_VERSION=22.7.0               # https://github.com/greenbone/gsa
+export GSAD_VERSION=22.6.0              # https://github.com/greenbone/gsad
+export OPENVAS_SMB_VERSION=22.5.3       # https://github.com/greenbone/openvas-smb
+export OPENVAS_SCANNER_VERSION=22.7.5   # https://github.com/greenbone/openvas-scanner
+export OSPD_OPENVAS_VERSION=22.6.0      # https://github.com/greenbone/ospd-openvas
+export NOTUS_VERSION=22.6.0             # https://github.com/greenbone/notus-scanner
 
+# Set global variables and paths
+export INSTALL_PREFIX=/usr/local
+export PATH=$PATH:$INSTALL_PREFIX/sbin
+export SOURCE_DIR=/tmp/greenbone/source
+export INSTALL_DIR=/tmp/install
+export BUILD_DIR=$HOME/build
 
 # Copy built files to root fs
-cp -rv /tmp/greenbone-bins/* /
+cp -rv /tmp/greenbone/install/* /
 
 # Create gvmd service unit
 cat <<EOF >/etc/systemd/system/gvmd.service
@@ -111,22 +127,27 @@ RestartSec=60
 WantedBy=multi-user.target
 EOF
 
-# Services are enabled in containerfile
 # systemctl daemon-reload
-# systemctl enable gsad gvmd pg-gvm ospd-openvas notus-scanner
+systemctl enable gsad gvmd ospd-openvas notus-scanner
 
 echo -e "Setting up redis"
 
-semanage fcontext -a -f a -t redis_var_run_t -r s0 '/var/run/redis-openvas(/.*)?'
+ls -la /etc/selinux/targeted/active
 
-sh -c 'cat << EOF > /etc/tmpfiles.d/redis-openvas.conf
-d       /var/lib/redis/openvas   0750 redis redis - -
-z       /var/lib/redis/openvas   0750 redis redis - -
-d       /run/redis-openvas       0750 redis redis - -
-z       /run/redis-openvas       0750 redis redis - -
-EOF'
 
-systemd-tmpfiles  --create
+# selinux stuff doesn't seem to fully work with OCI images
+# setenforce 0 >/dev/null
+
+# semanage fcontext -a -f a -t redis_var_run_t -r s0 '/var/run/redis-openvas(/.*)?'
+
+# sh -c 'cat << EOF > /etc/tmpfiles.d/redis-openvas.conf
+# d       /var/lib/redis/openvas   0750 redis redis - -
+# z       /var/lib/redis/openvas   0750 redis redis - -
+# d       /run/redis-openvas       0750 redis redis - -
+# z       /run/redis-openvas       0750 redis redis - -
+# EOF'
+
+# systemd-tmpfiles --create
 
 sh -c 'cat << EOF > /etc/systemd/system/redis-server@.service
 [Unit]
@@ -152,7 +173,7 @@ EOF'
 sudo cp $SOURCE_DIR/openvas-scanner-$OPENVAS_SCANNER_VERSION/config/redis-openvas.conf /etc/redis/
 sudo chown redis:redis /etc/redis/redis-openvas.conf
 echo "db_address = /run/redis-openvas/redis.sock" | sudo tee -a /etc/openvas/openvas.conf
-sudo systemctl daemon-reload
+# sudo systemctl daemon-reload
 sudo systemctl start redis-server@openvas.service
 sudo systemctl enable redis-server@openvas.service
 sudo usermod -aG redis gvm

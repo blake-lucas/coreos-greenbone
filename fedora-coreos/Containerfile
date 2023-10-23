@@ -4,10 +4,6 @@ FROM quay.io/fedora/fedora-coreos:${COREOS_VERSION}
 
 ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
 
-COPY --from=ghcr.io/blake-lucas/greenbone-bins:latest /root/install /tmp/greenbone-bins
-
-RUN ls -la /tmp/greenbone-bins && ls -la /tmp/greenbone-bins/gvmd && ls -la /tmp/greenbone-bins/gvm-libs
-
 # Deps for building in this image
 # RUN echo "Installing dependencies" && \
 #     rpm-ostree install \
@@ -165,20 +161,19 @@ RUN echo "Installing dependencies" && \
         postgresql-contrib \
         policycoreutils-python-utils \
         rsync \
-        redis \
-        
+        mosquitto \
+        redis
 
 COPY *.sh /tmp/
 
-# Fix for ld: command not found
-# RUN ln -sf /usr/bin/ld.bfd /etc/alternatives/ld && ln -sf /etc/alternatives/ld /usr/bin/ld && ld --version
+COPY --from=ghcr.io/blake-lucas/greenbone-bins:latest /root /tmp/greenbone
+COPY --from=ghcr.io/blake-lucas/greenbone-bins:latest /etc/openvas /etc/openvas
 
-RUN mkdir -p /var/lib/alternatives \
-    && chmod +x /tmp/*.sh \
+RUN ls -la /tmp/greenbone && ls -la /tmp/greenbone/install/gvmd && ls -la /tmp/greenbone/install/gvm-libs
+
+RUN chmod +x /tmp/install-greenbone-prebuilt.sh \
     && /tmp/install-greenbone-prebuilt.sh \
-    && mv /var/lib/alternatives /staged-alternatives \
-    && rm -fr /tmp/* \
+    && rm -rf /tmp/* \
     && ostree container commit \
-    && mkdir -p /var/lib && mv /staged-alternatives /var/lib/alternatives \
     && mkdir -p /tmp /var/tmp \
     && chmod -R 1777 /tmp /var/tmp
