@@ -28,7 +28,28 @@ export INSTALL_DIR=/tmp/install
 export BUILD_DIR=$HOME/build
 
 # Copy built files to root fs
-cp -rv /tmp/greenbone/install/* /
+rsync -Lav --exclude "sbin" /tmp/greenbone/install/gsad/* /
+rsync -Lav --exclude "sbin" /tmp/greenbone/install/gvmd/* /
+rsync -Lav --exclude "sbin" /tmp/greenbone/install/openvas-scanner/* /
+cp -v /tmp/greenbone/install/gsad/usr/local/sbin/gsad /usr/bin/gsad
+cp -v /tmp/greenbone/install/gvmd/usr/local/sbin/gvmd /usr/bin/gvmd
+cp -v /tmp/greenbone/install/gsad/usr/local/sbin/openvas-scanner /usr/bin/openvas
+
+which gsad
+which gvmd
+which openvas
+
+rsync -av /tmp/greenbone/install/openvas-smb/* /
+rsync -av /tmp/greenbone/install/gvm-libs/* /
+rsync -av /tmp/greenbone/install/pg-gvm/* /
+
+ls -la /tmp/greenbone/install/
+ls -la /tmp/greenbone/install/gvmd/usr/local/sbin
+
+sleep 30
+
+# Create gvm user
+useradd -r -M -U -G sudo -s /usr/sbin/nologin gvm
 
 # Create gvmd service unit
 cat <<EOF >/etc/systemd/system/gvmd.service
@@ -174,7 +195,7 @@ sudo cp $SOURCE_DIR/openvas-scanner-$OPENVAS_SCANNER_VERSION/config/redis-openva
 sudo chown redis:redis /etc/redis/redis-openvas.conf
 echo "db_address = /run/redis-openvas/redis.sock" | sudo tee -a /etc/openvas/openvas.conf
 # sudo systemctl daemon-reload
-sudo systemctl start redis-server@openvas.service
+# sudo systemctl start redis-server@openvas.service
 sudo systemctl enable redis-server@openvas.service
 sudo usermod -aG redis gvm
 
@@ -182,9 +203,16 @@ echo -e "#######################################################################
 echo -e " Setting up the postgres db, gvm permissions & update feed digital signature."
 echo -e "#############################################################################"
 
+which gvmd
+sleep 30
+
 # Set directory permissions
 sudo mkdir -p /var/lib/notus
 sudo mkdir -p /run/gvmd
+sudo mkdir -p /var/lib/gvm
+sudo mkdir -p /var/lib/openvas
+sudo mkdir -p /var/lib/notus
+sudo mkdir -p /var/log/gvm
 sudo chown -R gvm:gvm /var/lib/gvm
 sudo chown -R gvm:gvm /var/lib/openvas
 sudo chown -R gvm:gvm /var/lib/notus
@@ -210,19 +238,15 @@ sudo chown -R gvm:gvm $OPENVAS_GNUPG_HOME
 # Set sudo permissions for scanner #####################################################
 sudo sh -c "echo '%gvm ALL = NOPASSWD: /usr/local/sbin/openvas' >> /etc/sudoers"
 
-# Set up PostgreSQL user and database ##################################################
-sudo -Hiu postgres createuser -DRS gvm
-sudo -Hiu postgres createdb -O gvm gvmd
-sudo -Hiu postgres psql gvmd -c "create role dba with superuser noinherit; grant dba to gvm;"
-sudo ldconfig
+# # Set up PostgreSQL user and database ##################################################
+# sudo -Hiu postgres createuser -DRS gvm
+# sudo -Hiu postgres createdb -O gvm gvmd
+# sudo -Hiu postgres psql gvmd -c "create role dba with superuser noinherit; grant dba to gvm;"
+# sudo ldconfig
 
-# Create Greenbone admin
-sudo /usr/local/sbin/gvmd --create-user=admin --password=admin
-
-# Update feed owner
-sudo /usr/local/sbin/gvmd --modify-setting 78eceaec-3385-11ea-b237-28d24461215b --value $(sudo /usr/local/sbin/gvmd --get-users --verbose | grep ${ADMIN_USER} | awk '{print $2}')
-
-# Update feed
-/usr/local/bin/greenbone-feed-sync
+# Install greenbone-feed-sync and update feed
+PIP_OPTIONS="--no-warn-script-location --prefix=/usr"
+python3 -m pip install ${PIP_OPTIONS} greenbone-feed-sync 
+/usr/bin/greenbone-feed-sync greenbone-feed-sync
 
 echo -e "Installation finished"

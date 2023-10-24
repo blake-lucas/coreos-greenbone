@@ -39,6 +39,8 @@ DIR_SSL_KEY="/etc/nginx/ssl/private" # Nginx SSL private key location
 ADMIN_USER="admin"               # Customise default admin user name
 ADMIN_PASS="admin"                # First admin user password
 
+PIP_OPTIONS="--no-warn-script-location"
+
 # GVM user setup and trigger prompt for sudo
 useradd -r -M -U -G sudo -s /usr/sbin/nologin gvm
 usermod -aG gvm $USER
