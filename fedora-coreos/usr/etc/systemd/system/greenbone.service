@@ -4,9 +4,11 @@ After=docker.service
 Wants=network-online.target
 
 [Service]
+User=root
 TimeoutStartSec=0
-ExecStartPre=-export HOME=/opt /usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition pull
-ExecStart=export HOME=/opt /usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition up -d
+Environment=HOME=/opt
+ExecStartPre=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition pull
+ExecStart=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition up -d
 
 [Install]
 WantedBy=multi-user.target
