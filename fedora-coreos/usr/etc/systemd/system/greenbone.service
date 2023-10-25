@@ -1,0 +1,12 @@
+[Unit]
+Description=Greenbone CE Containers
+After=docker.service
+Wants=network-online.target
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker-compose -f /greenbone/docker-compose.yml -p greenbone-community-edition pull
+ExecStart=/usr/bin/docker-compose -f /greenbone/docker-compose.yml -p greenbone-community-edition up -d
+
+[Install]
+WantedBy=multi-user.target
