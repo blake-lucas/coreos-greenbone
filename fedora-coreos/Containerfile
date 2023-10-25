@@ -4,14 +4,12 @@ FROM quay.io/fedora/fedora-coreos:${COREOS_VERSION}
 
 ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
 
+RUN git --version
+
 RUN cd /tmp && \
     curl -sLO https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 && \
     mv docker-compose-linux-x86_64 /usr/bin/docker-compose && \
     chmod +x /usr/bin/docker-compose
-
-RUN mkdir /greenbone
-
-COPY greenbone-compose.yml /greenbone/docker-compose.yml
 
 COPY usr /usr
 
