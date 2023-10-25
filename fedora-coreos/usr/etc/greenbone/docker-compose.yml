@@ -4,73 +4,73 @@ services:
     environment:
       STORAGE_PATH: /var/lib/openvas/22.04/vt-data/nasl
     volumes:
-      - /opt/greenbone/vt_data_vol:/mnt
+      - vt_data_vol:/mnt
 
   notus-data:
     image: greenbone/notus-data
     volumes:
-      - /opt/greenbone/notus_data_vol:/mnt
+      - notus_data_vol:/mnt
 
   scap-data:
     image: greenbone/scap-data
     volumes:
-      - /opt/greenbone/scap_data_vol:/mnt
+      - scap_data_vol:/mnt
 
   cert-bund-data:
     image: greenbone/cert-bund-data
     volumes:
-      - /opt/greenbone/cert_data_vol:/mnt
+      - cert_data_vol:/mnt
 
   dfn-cert-data:
     image: greenbone/dfn-cert-data
     volumes:
-      - /opt/greenbone/cert_data_vol:/mnt
+      - cert_data_vol:/mnt
     depends_on:
       - cert-bund-data
 
   data-objects:
     image: greenbone/data-objects
     volumes:
-      - /opt/greenbone/data_objects_vol:/mnt
+      - data_objects_vol:/mnt
 
   report-formats:
     image: greenbone/report-formats
     volumes:
-      - /opt/greenbone/data_objects_vol:/mnt
+      - data_objects_vol:/mnt
     depends_on:
       - data-objects
 
   gpg-data:
     image: greenbone/gpg-data
     volumes:
-      - /opt/greenbone/gpg_data_vol:/mnt
+      - gpg_data_vol:/mnt
 
   redis-server:
     image: greenbone/redis-server
     restart: on-failure
     volumes:
-      - /opt/greenbone/redis_socket_vol:/run/redis/
+      - redis_socket_vol:/run/redis/
 
   pg-gvm:
     image: greenbone/pg-gvm:stable
     restart: on-failure
     volumes:
-      - /opt/greenbone/psql_data_vol:/var/lib/postgresql
-      - /opt/greenbone/psql_socket_vol:/var/run/postgresql
+      - psql_data_vol:/var/lib/postgresql
+      - psql_socket_vol:/var/run/postgresql
 
   gvmd:
     image: greenbone/gvmd:stable
     restart: on-failure
     volumes:
-      - /opt/greenbone/gvmd_data_vol:/var/lib/gvm
-      - /opt/greenbone/scap_data_vol:/var/lib/gvm/scap-data/
-      - /opt/greenbone/cert_data_vol:/var/lib/gvm/cert-data
-      - /opt/greenbone/data_objects_vol:/var/lib/gvm/data-objects/gvmd
-      - /opt/greenbone/vt_data_vol:/var/lib/openvas/plugins
-      - /opt/greenbone/psql_data_vol:/var/lib/postgresql
-      - /opt/greenbone/gvmd_socket_vol:/run/gvmd
-      - /opt/greenbone/ospd_openvas_socket_vol:/run/ospd
-      - /opt/greenbone/psql_socket_vol:/var/run/postgresql
+      - gvmd_data_vol:/var/lib/gvm
+      - scap_data_vol:/var/lib/gvm/scap-data/
+      - cert_data_vol:/var/lib/gvm/cert-data
+      - data_objects_vol:/var/lib/gvm/data-objects/gvmd
+      - vt_data_vol:/var/lib/openvas/plugins
+      - psql_data_vol:/var/lib/postgresql
+      - gvmd_socket_vol:/run/gvmd
+      - ospd_openvas_socket_vol:/run/ospd
+      - psql_socket_vol:/var/run/postgresql
     depends_on:
       pg-gvm:
         condition: service_started
@@ -91,7 +91,7 @@ services:
     ports:
       - 127.0.0.1:9392:80
     volumes:
-      - /opt/greenbone/gvmd_socket_vol:/run/gvmd
+      - gvmd_socket_vol:/run/gvmd
     depends_on:
       - gvmd
 
@@ -119,11 +119,11 @@ services:
         "666"
       ]
     volumes:
-      - /opt/greenbone/gpg_data_vol:/etc/openvas/gnupg
-      - /opt/greenbone/vt_data_vol:/var/lib/openvas/plugins
-      - /opt/greenbone/notus_data_vol:/var/lib/notus
-      - /opt/greenbone/ospd_openvas_socket_vol:/run/ospd
-      - /opt/greenbone/redis_socket_vol:/run/redis/
+      - gpg_data_vol:/etc/openvas/gnupg
+      - vt_data_vol:/var/lib/openvas/plugins
+      - notus_data_vol:/var/lib/notus
+      - ospd_openvas_socket_vol:/run/ospd
+      - redis_socket_vol:/run/redis/
     depends_on:
       redis-server:
         condition: service_started
@@ -145,8 +145,8 @@ services:
     restart: on-failure
     image: greenbone/notus-scanner:stable
     volumes:
-      - /opt/greenbone/notus_data_vol:/var/lib/notus
-      - /opt/greenbone/gpg_data_vol:/etc/openvas/gnupg
+      - notus_data_vol:/var/lib/notus
+      - gpg_data_vol:/etc/openvas/gnupg
     environment:
       NOTUS_SCANNER_MQTT_BROKER_ADDRESS: mqtt-broker
       NOTUS_SCANNER_PRODUCTS_DIRECTORY: /var/lib/notus/products
@@ -158,8 +158,8 @@ services:
   gvm-tools:
     image: greenbone/gvm-tools
     volumes:
-      - /opt/greenbone/gvmd_socket_vol:/run/gvmd
-      - /opt/greenbone/ospd_openvas_socket_vol:/run/ospd
+      - gvmd_socket_vol:/run/gvmd
+      - ospd_openvas_socket_vol:/run/ospd
     depends_on:
       - gvmd
       - ospd-openvas
