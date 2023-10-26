@@ -15,7 +15,7 @@ storage:
           #!/usr/bin/bash
           echo "Rebasing to OCI in 5 seconds"
           sleep 5
-          rpm-ostree rebase ostree-unverified-registry:ghcr.io/blake-lucas/coreos-greenbone:latest \
+          rpm-ostree rebase ostree-unverified-registry:ghcr.io/blake-lucas/coreos-greenbone:stable \
             && touch /etc/coreos-autorebase/.complete \
             && systemctl disable coreos-autorebase.service \
             && systemctl reboot

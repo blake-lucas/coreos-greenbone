@@ -22,7 +22,7 @@
         "path": "/etc/coreos-autorebase/coreos-autorebase.sh",
         "contents": {
           "compression": "gzip",
-          "source": "data:;base64,H4sIAAAAAAAC/2zNMWvDMBDF8V2f4ppCNllTlqydOhU6d5HOr7aorDN3p0C+fSnBUzM++P94ry9pmKZSeyrZ1gBehU6fKNlqX8iFPt7eqXa6kIGlz3YK1oCdLkH3LYq5AqR/APRYcfQbtH5XzFGxVHO9X5eVdaqSSss/iG1wtsSiEIuLAr1Ix7Vlhzl9BaLzmVwGr5TgfJR5uDyu0sSy7Q2Oo7a7OTb2RnO1XBroH5oMeqv8hCiKiIffAAAA//8l22zMDgEAAA=="
+          "source": "data:;base64,H4sIAAAAAAAC/2zNsU7EMAzG8T1PYQ7ptjTTLbcyMSExsyTuRxuRxpXtnHRvj6CCBUZL/5+/x4c0TFOpPZVsawCvQqdXlGy1L+RCL0/PVDtdyMDSZzsFa8BOl6D7FsVcAdIvADquOPoNWt8r5qhYqrner8vKOlVJpeUPxDY4W2JRiMVFgV6k42qeSwO9BaLzmVwGr5Tg/FPm4XJMpYll2xv8t7a7OTb2RnO17zd/0GTQW+V/iKKIePgMAAD//6kTwLMOAQAA"
         },
         "mode": 492
       }
