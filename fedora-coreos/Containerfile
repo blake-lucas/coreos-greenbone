@@ -15,6 +15,7 @@ COPY usr /usr
 
 RUN rm -rf /tmp/* && \
     systemctl enable docker.service && \
+    systemctl enable greenbone.service && \
     ostree container commit && \
     mkdir -p /tmp /var/tmp && \
     chmod -R 1777 /tmp /var/tmp
