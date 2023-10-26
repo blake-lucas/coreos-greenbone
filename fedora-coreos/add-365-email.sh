@@ -11,7 +11,7 @@ read -p "Enter M365 SMTP auth enabled email: " SMTP_EMAIL
 echo
 read -s -p "Enter the 365 account's app password: " APP_PWD
 echo
-sudo cat <<EOF > /var/local/365-email-setup-creds
+sudo cat <<EOF > ~/365-email-setup-creds
 #!/bin/bash
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c "apt-get update"
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'DEBIAN_FRONTEND="noninteractive" apt-get install postfix -y'
@@ -60,5 +60,6 @@ docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'postmap /etc/postfi
 echo "Email has been configured. You can send a test message using: test-email"
 EOF
 
+sudo mv ~/365-email-setup-creds /var/local/365-email-setup-creds
 sudo chmod +x /var/local/365-email-setup-creds
-sudo /var/local/365-email-setup-creds
+sudo bash /var/local/365-email-setup-creds
