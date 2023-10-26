@@ -50,7 +50,7 @@ docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'postmap /etc/postfi
 # Setup the generic map file
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'touch /etc/postfix/generic'
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'cat <<EOF | tee -a /etc/postfix/generic
-root@${SERVER} ${SMTP_EMAIL}
+root@localhost ${SMTP_EMAIL}
 @${DOMAIN_SEARCH_SUFFIX} ${SMTP_EMAIL}
 EOF'
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'chown root:root /etc/postfix/generic'
