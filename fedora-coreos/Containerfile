@@ -15,7 +15,9 @@ RUN cd /tmp && \
 COPY etc /etc
 
 COPY set-ip.sh /usr/bin/set-ip
-RUN chmod +x /usr/bin/set-ip
+COPY add-365-email.sh /usr/bin/add-365-email
+RUN chmod +x /usr/bin/set-ip && \
+    chmod +x /usr/bin/add-365-email
 
 RUN rm -rf /tmp/* && \
     systemctl enable docker.service && \
