@@ -33,7 +33,7 @@ podman run --interactive --rm quay.io/coreos/butane:release --pretty --strict < 
 5. Once the ignition file has been created and is available online, we can run the CoreOS install itself. Boot the [latest stable ISO.](https://fedoraproject.org/coreos/download/?stream=stable) and run the coreos-installer utility. In this example I'll use the public ignition example:
 
 ```bash
-sudo coreos-installer install /dev/sda --ignition-url https://raw.githubusercontent.com/blake-lucas/coreos-greenbone/main/fedora-coreos-autorebase.ign && reboot
+sudo coreos-installer install /dev/sda --ignition-url https://raw.githubusercontent.com/blake-lucas/coreos-greenbone/main/fedora-coreos/autorebase.ign && reboot
 ```
 
 6. Once the install is finished, the system should reboot once, rebase to the coreos-greenbone OCI image, reboot again, then pull the Greenbone containers and start them.
