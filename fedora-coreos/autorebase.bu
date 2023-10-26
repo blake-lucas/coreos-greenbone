@@ -4,6 +4,8 @@ passwd:
   users:
     - name: core
       password_hash: $y$j9T$C86GNQTXhs6wGM87kvykX.$tmQRgEffaIHYne2bTFGgQ0q8hOq0jjMSTdCfrfosCoA
+      groups:
+        - docker
 storage:
   directories:
     - path: /etc/coreos-autorebase

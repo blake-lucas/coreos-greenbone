@@ -5,6 +5,9 @@
   "passwd": {
     "users": [
       {
+        "groups": [
+          "docker"
+        ],
         "name": "core",
         "passwordHash": "$y$j9T$C86GNQTXhs6wGM87kvykX.$tmQRgEffaIHYne2bTFGgQ0q8hOq0jjMSTdCfrfosCoA"
       }
