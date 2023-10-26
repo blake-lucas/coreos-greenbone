@@ -10,6 +10,8 @@ Environment=HOME=/opt
 ExecStartPro=/usr/bin/bash -c '/usr/bin/echo "Pulling Greenbone CE container images" >/dev/console'
 ExecStartPre=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition pull
 ExecStartPre=/usr/bin/bash -c '/usr/bin/echo "Finished pulling container images. Starting containers." >/dev/console'
+ExecStartPre=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition up -d
+ExecStartPre=/usr/bin/bash -c '/usr/bin/echo "Finished starting Greenbone containers, it should be accessible now." >/dev/console'
 ExecStart=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition up
 ExecStop=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition down
 
