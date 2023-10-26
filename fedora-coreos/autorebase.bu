@@ -3,7 +3,7 @@ version: 1.4.0
 passwd:
   users:
     - name: core
-      password_hash: $y$j9T$NpjG4BGniWRxSPq0bBdBY/$/G1SCX8.wMgYMWiVW/.j/0vWlq4M90y38hyGmQsh1UA
+      password_hash: $y$j9T$C86GNQTXhs6wGM87kvykX.$tmQRgEffaIHYne2bTFGgQ0q8hOq0jjMSTdCfrfosCoA
 storage:
   directories:
     - path: /etc/coreos-autorebase
