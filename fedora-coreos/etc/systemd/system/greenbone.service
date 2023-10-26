@@ -7,8 +7,11 @@ Wants=network-online.target
 User=root
 TimeoutStartSec=0
 Environment=HOME=/opt
-ExecStartPre=/usr/bin/echo "Pulling Greenbone CE container images" >/dev/tty1 && /usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition pull && /usr/bin/echo "Finished pulling container images. Starting containers." >/dev/tty1
-ExecStart=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition up -d && /usr/bin/echo "Greenbone CE containers started" >/dev/tty1
+ExecStartPre=/usr/bin/echo "Pulling Greenbone CE container images" >/dev/tty1
+ExecStartPre=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition pull
+ExecStartPre=/usr/bin/echo "Finished pulling container images. Starting containers." >/dev/tty1
+ExecStart=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition up -d
+ExecStartPost=/usr/bin/echo "Greenbone CE containers started" >/dev/tty1
 
 [Install]
 WantedBy=multi-user.target
