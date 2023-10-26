@@ -1,7 +1,7 @@
 #!/bin/bash
 # To install inside Docker containers, varibles in the local shell cannot be passed through. Therefore this script 
 # first dynamically collects the O365 credentials and builds a static script withe all required values, and runs it.
-# To procted auth info, after the static secondary script runs it will delete itself.
+# To protect auth info, the static script will delete itself after running.
 
 clear
 # Get the Office365 smtp authentication credentials
