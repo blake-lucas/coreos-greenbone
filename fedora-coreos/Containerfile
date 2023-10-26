@@ -4,7 +4,8 @@ FROM quay.io/fedora/fedora-coreos:${COREOS_VERSION}
 
 ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
 
-RUN git --version
+# Enable password auth for SSH
+RUN rm /etc/ssh/sshd_config.d/40-disable-passwords.conf
 
 RUN cd /tmp && \
     curl -sLO https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 && \
@@ -12,6 +13,9 @@ RUN cd /tmp && \
     chmod +x /usr/bin/docker-compose
 
 COPY etc /etc
+
+COPY set-ip.sh /usr/bin/set-ip
+RUN chmod +x /usr/bin/set-ip
 
 RUN rm -rf /tmp/* && \
     systemctl enable docker.service && \
