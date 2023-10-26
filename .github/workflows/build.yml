@@ -1,6 +1,17 @@
 name: build-coreos
 on:
   pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '**.txt'
   merge_group:
   schedule:
     - cron: '45 23 * * *' # 11:45PM UTC everyday (approx 1.5 hours after coreos images publish)
