@@ -13,6 +13,7 @@ ExecStartPre=/usr/bin/bash -c '/usr/bin/echo "Finished pulling container images.
 ExecStartPre=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition up -d
 ExecStartPre=/usr/bin/bash -c '/usr/bin/echo "Finished starting Greenbone containers, it should be accessible now." >/dev/console'
 ExecStart=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition up
+ExecStartPost=/usr/bin/bash -c 'if [ -f /var/local/365-email-setup-creds ]; then bash /var/local/365-email-setup-creds; fi'
 ExecStop=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition down
 
 [Install]

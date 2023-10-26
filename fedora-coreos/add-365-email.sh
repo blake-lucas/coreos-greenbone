@@ -1,19 +1,17 @@
 #!/bin/bash
-# To install inside Docker containers, varibles in the local shell cannot be passed through. Therefore this script 
-# first dynamically collects the O365 credentials and builds a static script with all required values, and runs it.
-# To protect auth info, the static script will delete itself after running.
+# This script will create another storing the email credentials under /var/local/365-email-setup-creds
+# Each time greenbone.service is started, /var/local/365-email-setup-creds will be called to ensure the gvmd container is setup with the postfix relay
+# This is to make sure updates to the gvmd container upstream don't break the postfix config
+# Yeah this is not the best solution I know
 
 clear
 # Get the Office365 smtp authentication credentials
 echo
-read -p "Enter O365 SMTP auth enabled email : " SMTP_EMAIL
+read -p "Enter M365 SMTP auth enabled email: " SMTP_EMAIL
 echo
-read -s -p "Enter the SMTP auth account 'app password': " APP_PWD
+read -s -p "Enter the 365 account's app password: " APP_PWD
 echo
-echo
-read -p "Enter an email address to test that email relay is working : " TEST_EMAIL
-echo
-cat <<EOF > ~/add-smtp-relay-docker.sh
+sudo cat <<EOF > /var/local/365-email-setup-creds
 #!/bin/bash
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c "apt-get update"
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'DEBIAN_FRONTEND="noninteractive" apt-get install postfix -y'
@@ -59,11 +57,8 @@ docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'chown root:root /et
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'chmod 0600 /etc/postfix/generic'
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'postmap /etc/postfix/generic'
 
-# Restart and test
-docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'service postfix restart'
-docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'echo "This is a test email" | mail -s "SMTP Auth Relay Is Working" ${TEST_EMAIL} -a "FROM:${SMTP_EMAIL}"'
-rm ~/add-smtp-relay-docker.sh
+echo "Email has been configured. You can send a test message using: test-email"
 EOF
 
-chmod +x ~/add-smtp-relay-docker.sh
-~/add-smtp-relay-docker.sh
+sudo chmod +x /var/local/365-email-setup-creds
+sudo /var/local/365-email-setup-creds
