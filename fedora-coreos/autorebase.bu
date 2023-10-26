@@ -1,0 +1,40 @@
+variant: fcos
+version: 1.4.0
+passwd:
+  users:
+    - name: core
+      password_hash: $y$j9T$NpjG4BGniWRxSPq0bBdBY/$/G1SCX8.wMgYMWiVW/.j/0vWlq4M90y38hyGmQsh1UA
+storage:
+  directories:
+    - path: /etc/coreos-autorebase
+      mode: 0754
+  files:
+    - path: /etc/coreos-autorebase/coreos-autorebase.sh
+      contents:
+        inline: |
+          #!/usr/bin/bash
+          echo "Rebasing to OCI in 5 seconds"
+          sleep 5
+          rpm-ostree rebase ostree-unverified-registry:ghcr.io/blake-lucas/coreos-greenbone:latest \
+            && touch /etc/coreos-autorebase/.complete \
+            && systemctl disable coreos-autorebase.service \
+            && systemctl reboot
+      mode: 0754
+systemd:
+  units:
+    - name: coreos-autorebase.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Automatic rebase to OCI and reboot
+        ConditionPathExists=!/etc/coreos-autorebase/.complete
+        ConditionFileIsExecutable=/etc/coreos-autorebase/coreos-autorebase.sh
+        After=network-online.target
+        Wants=network-online.target
+        [Service]
+        Type=oneshot
+        StandardOutput=journal+console
+        RemainAfterExit=yes
+        ExecStart=/etc/coreos-autorebase/coreos-autorebase.sh
+        [Install]
+        WantedBy=multi-user.target

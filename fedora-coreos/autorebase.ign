@@ -1,0 +1,40 @@
+{
+  "ignition": {
+    "version": "3.3.0"
+  },
+  "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "passwordHash": "$y$j9T$NpjG4BGniWRxSPq0bBdBY/$/G1SCX8.wMgYMWiVW/.j/0vWlq4M90y38hyGmQsh1UA"
+      }
+    ]
+  },
+  "storage": {
+    "directories": [
+      {
+        "path": "/etc/coreos-autorebase",
+        "mode": 492
+      }
+    ],
+    "files": [
+      {
+        "path": "/etc/coreos-autorebase/coreos-autorebase.sh",
+        "contents": {
+          "compression": "gzip",
+          "source": "data:;base64,H4sIAAAAAAAC/2zNMWvDMBDF8V2f4ppCNllTlqydOhU6d5HOr7aorDN3p0C+fSnBUzM++P94ry9pmKZSeyrZ1gBehU6fKNlqX8iFPt7eqXa6kIGlz3YK1oCdLkH3LYq5AqR/APRYcfQbtH5XzFGxVHO9X5eVdaqSSss/iG1wtsSiEIuLAr1Ix7Vlhzl9BaLzmVwGr5TgfJR5uDyu0sSy7Q2Oo7a7OTb2RnO1XBroH5oMeqv8hCiKiIffAAAA//8l22zMDgEAAA=="
+        },
+        "mode": 492
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      {
+        "contents": "[Unit]\nDescription=Automatic rebase to OCI and reboot\nConditionPathExists=!/etc/coreos-autorebase/.complete\nConditionFileIsExecutable=/etc/coreos-autorebase/coreos-autorebase.sh\nAfter=network-online.target\nWants=network-online.target\n[Service]\nType=oneshot\nStandardOutput=journal+console\nRemainAfterExit=yes\nExecStart=/etc/coreos-autorebase/coreos-autorebase.sh\n[Install]\nWantedBy=multi-user.target",
+        "enabled": true,
+        "name": "coreos-autorebase.service"
+      }
+    ]
+  }
+}
