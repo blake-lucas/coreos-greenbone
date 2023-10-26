@@ -36,17 +36,21 @@ podman run --interactive --rm quay.io/coreos/butane:release --pretty --strict < 
 sudo coreos-installer install /dev/sda --ignition-url https://raw.githubusercontent.com/blake-lucas/coreos-greenbone/main/fedora-coreos-autorebase.ign && reboot
 ```
 
-6. Once the install is finished, the system should reboot once, rebase to the coreos-greenbone OCI image, reboot again, then pull the Greenbone containers and start them. The default username for this ignition file is core, and the default password is 1changethis2. Once the 2 reboots have finished, login and update the password to something else. If you are planning on deploying this image a lot, create your own ignition file with the credentials you need.
-7. The Greenbone containers are controlled by a custom service unit "greenbone.service". You can check the status of the containers with:
+6. Once the install is finished, the system should reboot once, rebase to the coreos-greenbone OCI image, reboot again, then pull the Greenbone containers and start them.
+7. The default username for this ignition file is core, and the default password is 1changethis2. Once the 2 reboots have finished, login and update the password to something else. If you are planning on deploying this image a lot, create your own ignition file with the credentials you need.
+8. The Greenbone containers are controlled by a custom service unit "greenbone.service". You can check the status of the containers with:
 ```bash
 systemctl status greenbone.service
 ```
-8. For easier management, password based SSH authentication is enabled on this image. Be sure to set a good password!
+8. Once all the containers have been downloaded and are starting, a message will be sent to the TTY for confirmation. After a few seconds Greenbone should be accessible at the default port of 9392. CoreOS will list the IP it DHCPs to the TTY.
+9. If a static IP address is needed, login and run "set-ip" to trigger a script to manually enter IP info. Note that with the set-ip script, both the old DHCP IP and the static address you set will be accessible until after a reboot.
+10. Greenbone's default login is admin:admin. Make sure to change this.
+11. For easier management, password based SSH authentication is enabled on this image. Be sure to set a good password!
 
 ## Verification
 
 These images are signed with sigstore's [cosign](https://docs.sigstore.dev/cosign/overview/). You can verify the signature by downloading the `cosign.pub` key from this repo and running the following command:
 
 ```bash
-cosign verify --key cosign.pub ghcr.io/ublue-os/ucore
+cosign verify --key cosign.pub ghcr.io/blake-lucas/coreos-greenbone
 ```
