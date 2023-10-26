@@ -38,6 +38,7 @@ smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
 EOF'
 
 # Setup the password file and postmap
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'if [ -f /etc/postfix/sasl_passwd ]; then rm -f /etc/postfix/sasl_passwd; fi'
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'touch /etc/postfix/sasl_passwd'
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'cat <<EOF | tee -a /etc/postfix/sasl_passwd
 [smtp.office365.com]:587 ${SMTP_EMAIL}:${APP_PWD}
@@ -48,6 +49,7 @@ docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'chmod 0600 /etc/pos
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'postmap /etc/postfix/sasl_passwd'
 
 # Setup the generic map file
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'if [ -f /etc/postfix/generic ]; then rm -f /etc/postfix/generic; fi'
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'touch /etc/postfix/generic'
 docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'cat <<EOF | tee -a /etc/postfix/generic
 root@localhost ${SMTP_EMAIL}

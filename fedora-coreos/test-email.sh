@@ -9,4 +9,4 @@ rm ~/test-email-temp.sh
 EOF
 
 chmod +x ~/test-email-temp.sh
-~/test-email.sh
+~/test-email-temp.sh
