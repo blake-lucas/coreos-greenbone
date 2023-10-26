@@ -6,6 +6,7 @@ Wants=network-online.target
 [Service]
 User=root
 TimeoutStartSec=0
+StandardOutput=journal+console
 Environment=HOME=/opt
 ExecStartPre=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition pull
 ExecStart=/usr/bin/docker-compose -f /etc/greenbone/docker-compose.yml -p greenbone-community-edition up -d
