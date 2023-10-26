@@ -44,8 +44,9 @@ systemctl status greenbone.service
 ```
 8. Once all the containers have been downloaded and are starting, a message will be sent to the TTY for confirmation. After a few seconds Greenbone should be accessible at the default port of 9392. CoreOS will list the IP it DHCPs to the TTY.
 9. If a static IP address is needed, login and run "set-ip" to trigger a script to manually enter IP info. Note that with the set-ip script, both the old DHCP IP and the static address you set will be accessible until after a reboot.
-10. Greenbone's default login is admin:admin. Make sure to change this.
-11. For easier management, password based SSH authentication is enabled on this image. Be sure to set a good password!
+10. If email reporting is needed, run "add-365-email" to add support for emailing from a Microsoft 365 account to the GVMD container. (Currently this will break after GVMD updates, I'm working on making this automatic or rolling a custom image for GVMD)
+11. Greenbone's default login is admin:admin. Make sure to change this.
+12. For easier management, password based SSH authentication is enabled on this image. Be sure to set a good password!
 
 ## Verification
 
