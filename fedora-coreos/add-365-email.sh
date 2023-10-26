@@ -1,6 +1,6 @@
 #!/bin/bash
 # To install inside Docker containers, varibles in the local shell cannot be passed through. Therefore this script 
-# first dynamically collects the O365 credentials and builds a static script withe all required values, and runs it.
+# first dynamically collects the O365 credentials and builds a static script with all required values, and runs it.
 # To protect auth info, the static script will delete itself after running.
 
 clear
@@ -15,14 +15,18 @@ read -p "Enter an email address to test that email relay is working : " TEST_EMA
 echo
 cat <<EOF > ~/add-smtp-relay-docker.sh
 #!/bin/bash
-# Remove some default Postifx config items that conflict with new entries
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'sed -i "/relayhost/d" /etc/postfix/main.cf'
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'sed -i "/smtp_tls_security_level=may/d" /etc/postfix/main.cf'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c "apt-get update"
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'DEBIAN_FRONTEND="noninteractive" apt-get install postfix -y'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c "apt-get install nano nsis libsasl2-modules mailutils -y"
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c "service postfix restart"
+# Remove some default Postfix config items that conflict with new entries
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'sed -i "/relayhost/d" /etc/postfix/main.cf'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'sed -i "/smtp_tls_security_level=may/d" /etc/postfix/main.cf'
 # For simple relay outbound only, limit Postfix to just loopback and IPv4
-#docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'sed -i "s/inet_interfaces = all/inet_interfaces = loopback-only/g" /etc/postfix/main.cf'
-#docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'sed -i "s/inet_protocols = all/inet_protocols = ipv4/g" /etc/postfix/main.cf'
+#docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'sed -i "s/inet_interfaces = all/inet_interfaces = loopback-only/g" /etc/postfix/main.cf'
+#docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'sed -i "s/inet_protocols = all/inet_protocols = ipv4/g" /etc/postfix/main.cf'
 # Add the new Office365 SMTP auth with TLS settings
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'cat <<EOF | tee -a /etc/postfix/main.cf
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'cat <<EOF | tee -a /etc/postfix/main.cf
 relayhost = [smtp.office365.com]:587
 smtp_use_tls = yes
 smtp_always_send_ehlo = yes
@@ -36,28 +40,28 @@ smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
 EOF'
 
 # Setup the password file and postmap
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'touch /etc/postfix/sasl_passwd'
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'cat <<EOF | tee -a /etc/postfix/sasl_passwd
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'touch /etc/postfix/sasl_passwd'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'cat <<EOF | tee -a /etc/postfix/sasl_passwd
 [smtp.office365.com]:587 ${SMTP_EMAIL}:${APP_PWD}
 EOF'
 
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'chown root:root /etc/postfix/sasl_passwd'
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'chmod 0600 /etc/postfix/sasl_passwd'
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'postmap /etc/postfix/sasl_passwd'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'chown root:root /etc/postfix/sasl_passwd'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'chmod 0600 /etc/postfix/sasl_passwd'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'postmap /etc/postfix/sasl_passwd'
 
 # Setup the generic map file
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'touch /etc/postfix/generic'
-ocker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'cat <<EOF | tee -a /etc/postfix/generic
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'touch /etc/postfix/generic'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'cat <<EOF | tee -a /etc/postfix/generic
 root@${SERVER} ${SMTP_EMAIL}
 @${DOMAIN_SEARCH_SUFFIX} ${SMTP_EMAIL}
 EOF'
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'chown root:root /etc/postfix/generic'
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'chmod 0600 /etc/postfix/generic'
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'postmap /etc/postfix/generic'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'chown root:root /etc/postfix/generic'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'chmod 0600 /etc/postfix/generic'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'postmap /etc/postfix/generic'
 
 # Restart and test
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'service postfix restart'
-docker exec greenbone-community-edition_gvmd_1 /bin/bash -c 'echo "This is a test email" | mail -s "SMTP Auth Relay Is Working" ${TEST_EMAIL} -a "FROM:${SMTP_EMAIL}"'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'service postfix restart'
+docker exec greenbone-community-edition-gvmd-1 /bin/bash -c 'echo "This is a test email" | mail -s "SMTP Auth Relay Is Working" ${TEST_EMAIL} -a "FROM:${SMTP_EMAIL}"'
 rm ~/add-smtp-relay-docker.sh
 EOF
 
