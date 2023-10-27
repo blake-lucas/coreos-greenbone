@@ -12,6 +12,8 @@ This is a [Fedora CoreOS](https://getfedora.org/coreos/) image that is preconfig
 
 This image is not currently available for direct install. You will need to download the latest stable [CoreOS ISO](https://fedoraproject.org/coreos/download/?stream=stable) and run the coreos-installer CLI utility.
 
+Hardware/VM requirements are the same as Greenbone's recommendations [here](https://greenbone.github.io/docs/latest/22.4/source-build/index.html#hardware-requirements)
+
 All CoreOS installation methods require the user to [produce an Ignition file](https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/). This Ignition file should, at mimimum, set a password and SSH key for the default user (default username is `core`). This repo contains an ignition file that can be used as a template. Feel free to copy it, update the password hash, and host it on your own web server/repo. If you are fine updating the password yourself after each install, then you can skip to step 5 and use the provided coreos-installer command.
 
 ### Installation with ignition file
