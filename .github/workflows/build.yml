@@ -6,12 +6,16 @@ on:
     paths-ignore:
       - '**.md'
       - '**.txt'
+      - '**.ign'
+      - '**.bu'
   push:
     branches:
       - main
     paths-ignore:
       - '**.md'
       - '**.txt'
+      - '**.ign'
+      - '**.bu'
   merge_group:
   schedule:
     - cron: '45 23 * * *' # 11:45PM UTC everyday (approx 1.5 hours after coreos images publish)
