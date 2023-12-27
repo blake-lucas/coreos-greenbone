@@ -1,6 +1,7 @@
 #!/bin/bash
 # Variables in local shell can't be passed through to docker exec commands
 # The workaround for this is to generate a temporary script that then deletes itself
+
 read -p "Recipient email address to test the email relay: " TEST_EMAIL
 read -p "From address for the sending account: " SMTP_EMAIL
 cat <<EOF > ~/test-email-temp.sh
