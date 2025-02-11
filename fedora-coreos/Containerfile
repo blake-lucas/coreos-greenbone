@@ -7,10 +7,16 @@ ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
 # Enable password auth for SSH
 RUN rm /etc/ssh/sshd_config.d/40-disable-passwords.conf
 
-RUN cd /tmp && \
-    curl -sLO https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 && \
-    mv docker-compose-linux-x86_64 /usr/bin/docker-compose && \
-    chmod +x /usr/bin/docker-compose
+COPY etc /etc
+
+# Install Docker from Docker-CE repo
+RUN rpm-ostree install docker-ce docker-ce-cli docker-buildx-plugin docker-compose-plugin
+
+# Install docker-compose - This is no longer needed with the new docker-compose-plugin package
+#RUN cd /tmp && \
+#    curl -sLO https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 && \
+#    mv docker-compose-linux-x86_64 /usr/bin/docker-compose && \
+#    chmod +x /usr/bin/docker-compose
 
 # Download latest gdu and move to /usr/bin per the instructions at https://github.com/dundee/gdu#installation
 RUN curl -L https://github.com/dundee/gdu/releases/latest/download/gdu_linux_amd64.tgz | tar xz && chmod +x gdu_linux_amd64 && mv gdu_linux_amd64 /usr/bin/gdu
@@ -26,8 +32,6 @@ RUN rpm-ostree install \
                 nethogs \
                 ca-certificates \
                 gnupg
-
-COPY etc /etc
 
 COPY set-ip.sh /usr/bin/set-ip
 COPY test-email.sh /usr/bin/test-email
