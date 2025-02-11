@@ -19,9 +19,11 @@ RUN curl -L https://github.com/dundee/gdu/releases/latest/download/gdu_linux_amd
 RUN rpm-ostree install \
                 wget \
                 htop \
+                btop \
                 iotop \
                 sysstat \
-                ncdu
+                ncdu \
+                nethogs
 
 COPY etc /etc
 
