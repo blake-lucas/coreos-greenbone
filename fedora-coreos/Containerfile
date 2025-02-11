@@ -23,7 +23,9 @@ RUN rpm-ostree install \
                 iotop \
                 sysstat \
                 ncdu \
-                nethogs
+                nethogs \
+                ca-certificates \
+                gnupg
 
 COPY etc /etc
 
