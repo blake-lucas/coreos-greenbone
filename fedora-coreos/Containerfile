@@ -21,8 +21,7 @@ RUN rpm-ostree install \
                 htop \
                 iotop \
                 sysstat \
-                ncdu \
-                docker-compose-plugin
+                ncdu
 
 COPY etc /etc
 
