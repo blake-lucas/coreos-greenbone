@@ -1,16 +1,7 @@
 ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
+
 FROM quay.io/fedora/fedora-coreos:${COREOS_VERSION}
 
-# Add Docker CE repository
-RUN curl -L https://download.docker.com/linux/fedora/gpg | gpg --dearmor -o /etc/pki/rpm-gpg/docker-ce.gpg && \
-    echo -e '[docker-ce-stable]\nname=Docker CE\nbaseurl=https://download.docker.com/linux/fedora/$releasever/$basearch/stable\nenabled=1\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/docker-ce.gpg' > /etc/yum.repos.d/docker-ce.repo
-
-# Remove moby-engine and podman stack
-RUN rpm-ostree override remove moby-engine containerd runc podman && \
-    rpm-ostree install docker-ce docker-ce-cli containerd.io docker-compose-plugin && \
-    rpm-ostree cleanup -m
-
-# Rest of your existing configuration
 ARG COREOS_VERSION="${COREOS_VERSION:-stable}"
 
 # Enable password auth for SSH
@@ -18,22 +9,20 @@ RUN rm /etc/ssh/sshd_config.d/40-disable-passwords.conf
 
 COPY etc /etc
 
-# Download latest gdu
-RUN curl -L https://github.com/dundee/gdu/releases/latest/download/gdu_linux_amd64.tgz | tar xz && \
-    chmod +x gdu_linux_amd64 && \
-    mv gdu_linux_amd64 /usr/bin/gdu
+# Download latest gdu and move to /usr/bin per the instructions at https://github.com/dundee/gdu#installation
+RUN curl -L https://github.com/dundee/gdu/releases/latest/download/gdu_linux_amd64.tgz | tar xz && chmod +x gdu_linux_amd64 && mv gdu_linux_amd64 /usr/bin/gdu
 
-# Install additional utilities
-RUN rpm-ostree install \
-    wget \
-    htop \
-    btop \
-    iotop \
-    sysstat \
-    ncdu \
-    nethogs \
-    ca-certificates \
-    gnupg
+# Install a few packages
+RUN rpm-ostree install docker-compose-plugin \
+                        wget \
+                        htop \
+                        btop \
+                        iotop \
+                        sysstat \
+                        ncdu \
+                        nethogs \
+                        ca-certificates \
+                        gnupg
 
 COPY set-ip.sh /usr/bin/set-ip
 COPY test-email.sh /usr/bin/test-email
